@@ -1,0 +1,142 @@
+#:kivy 1.10.0
+
+#:import hex kivy.utils.get_color_from_hex
+
+<SelfStkQuote>:
+    body_layout: body_layout.__self__
+    content_layout: content_layout.__self__
+    selfgroup_id: selfgroup_id
+    stksetting_id: stksetting_id
+    page_id: page_id
+    totalpage_id: totalpage_id
+    prepage_id: prepage_id
+    nextpage_id: nextpage_id
+    fieldRight_id: fieldRight_id
+    fieldLeft_id: fieldLeft_id
+    
+    orientation: "vertical"
+    size_hint: (1, 1)
+    padding: 2
+    canvas.before:
+        Color:
+            rgba: hex("#00142D")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        size_hint: (1, None)
+        height: 30
+        orientation: "horizontal"
+        padding: 2
+
+        BoxLayout:
+            size_hint: (.01, 1)
+
+        SLabel:
+            text: "自選組合選擇:"
+            color: hex("#FFFFFF")
+            size_hint: (.13, 1)
+        BoxLayout:
+            size_hint: (.01, 1)
+        SButton:
+            id: selfgroup_id
+            multiline: False
+            text: ""
+            size_hint: (.24, 1)
+            halign: "center"
+            valign: "middle"
+
+        BoxLayout:
+            size_hint: (.02, 1)
+            
+        SButton:
+            id: stksetting_id
+            text: "自選設定"
+            size_hint: (.11, 1)
+            halign: "center"
+            valign: "middle"
+            on_release: root._stkSetting()
+
+        BoxLayout:
+            size_hint: (.02, 1)
+
+        BoxLayout:
+            size_hint: (.12, 1)
+            orientation: "horizontal"
+            
+            SLabel:
+                text: "第"
+                color: hex("#FFFFFF")
+                size_hint: (.16, 1)
+                halign: "right"
+            STextInput:
+                id: page_id
+                multiline: False
+                text: "1"
+                size_hint: (.32, 1)
+            SLabel:
+                text: "/"
+                color: hex("#FFFFFF")
+                size_hint: (.16, 1)
+                halign: "center"
+            SLabel:
+                id: totalpage_id
+                text: "1"
+                color: hex("#FFFFFF")
+                size_hint: (.32, 1)
+                halign: "left"
+            BoxLayout:
+                size_hint: (.04, 1)
+        
+        BoxLayout:
+            size_hint: (.30, 1)
+            orientation: "horizontal"
+
+            SButton:
+                id: prepage_id
+                text: "上一頁"
+                size_hint: (.28, 1)
+                halign: "center"
+                valign: "middle"
+                on_release: root._onChangePage("PrePage")
+            BoxLayout:
+                size_hint: (.01, 1)
+            SButton:
+                id: nextpage_id
+                text: "下一頁"
+                size_hint: (.28, 1)
+                halign: "center"
+                valign: "middle"
+                on_release: root._onChangePage("NextPage")
+            BoxLayout:
+                size_hint: (.01, 1)
+            SButton:
+                id: fieldRight_id
+                text: "右移"
+                size_hint: (.20, 1)
+                halign: "center"
+                valign: "middle"
+                on_release: root._onFieldShift("fieldRight")
+            BoxLayout:
+                size_hint: (.01, 1)
+            SButton:
+                id: fieldLeft_id
+                text: "左移"
+                size_hint: (.20, 1)
+                halign: "center"
+                valign: "middle"
+                on_release: root._onFieldShift("fieldLeft")
+            BoxLayout:
+                size_hint: (.01, 1)
+
+        BoxLayout:
+            size_hint: (.05, 1)
+    
+    BoxLayout:
+        id: body_layout
+        size_hint: (1, .95)
+        
+        Widget:
+            id: content_layout
+            size_hint: (1, 1)

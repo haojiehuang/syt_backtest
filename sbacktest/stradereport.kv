@@ -1,0 +1,226 @@
+#:kivy 1.10.0
+
+#:import hex kivy.utils.get_color_from_hex
+
+<STradeReport>:
+    body_layout: body_layout
+    rule_id: rule_id
+    reportFile_id: reportFile_id
+    closebtn_id: closebtn_id
+    
+    orientation: "vertical"
+    size_hint: (1, 1)
+    padding: 2
+    
+    canvas.before:
+        Color:
+            rgba: hex("#00142D")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        size_hint: (1, .06)
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                #rgba: hex("#1B1B1B")
+                rgba: hex("#00142D")
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        
+        BoxLayout:
+            size_hint: (1, .01)
+        
+        BoxLayout:
+            size_hint: (1, .98)
+            orientation: "horizontal"
+            
+            BoxLayout:
+                size_hint: (.06, 1)
+            SButton:
+                text: "回測檔案"
+                size_hint: (.12, 1)
+                halign: 'center'
+                valign: 'middle'
+                on_release: root.showSelectFile()
+            BoxLayout:
+                size_hint: (.01, 1)
+            SLabel:
+                text: "交易成本選擇:"
+                color: hex("#FFFFFF")
+                size_hint: (.13, 1)
+            BoxLayout:
+                size_hint: (.01, 1)
+            SButton:
+                id: rule_id
+                multiline: False
+                text: ""
+                size_hint: (.35, 1)
+                halign: "center"
+                valign: "middle"
+            BoxLayout:
+                size_hint: (.01, 1)
+            SButton:
+                text: "分析"
+                size_hint: (.12, 1)
+                halign: "center"
+                valign: "middle"
+                on_release: root.analyzeBTData()
+            BoxLayout:
+                size_hint: (.01, 1)
+            SButton:
+                id: reportFile_id
+                text: "匯出檔案"
+                size_hint: (.12, 1)
+                halign: "center"
+                valign: "middle"
+                disabled: True
+                on_release: root.reportFile()
+            BoxLayout:
+                size_hint: (.06, 1)
+        
+        BoxLayout:
+            size_hint: (1, .01)
+
+    BoxLayout:
+        size_hint: (1, .01)
+        
+    BoxLayout:
+        id: body_layout
+        size_hint: (1, .87)
+        orientation: "vertical"
+
+    BoxLayout:
+        size_hint: (1, .06)
+        orientation: "horizontal"
+        
+        SButton:
+            id: closebtn_id
+            text: '關閉'
+            size_hint: (1, 1)
+            halign: 'center'
+            valign: 'middle'
+
+<SReportFile>:
+    stkname_id: stkname_id
+    strategy_id: strategy_id
+    period_id: period_id
+    filename_id: filename_id
+    ensurebtn_id: ensurebtn_id
+    closebtn_id: closebtn_id
+    size_hint: (1, 1)
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: hex("#FFFFFF")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        size_hint: (1, .11)
+        
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .14)
+        
+        BoxLayout:
+            size_hint: (.10, 1)
+        SLabel:
+            text: "商品名稱"
+            color: hex("#000000")
+            size_hint: (.18, 1)
+        STextInput:
+            id: stkname_id
+            multiline: False
+            size_hint: (.62, .8)
+            valign: 'middle'
+        BoxLayout:
+            size_hint: (.10, 1)
+    
+    BoxLayout:
+        size_hint: (1, .02)
+                
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .14)
+        
+        BoxLayout:
+            size_hint: (.10, 1)
+        SLabel:
+            text: "策略名稱"
+            color: hex("#000000")
+            size_hint: (.18, 1)
+        STextInput:
+            id: strategy_id
+            multiline: False
+            size_hint: (.62, .8)
+        BoxLayout:
+            size_hint: (.10, 1)
+    
+    BoxLayout:
+        size_hint: (1, .02)
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .14)
+        
+        BoxLayout:
+            size_hint: (.10, 1)
+        SLabel:
+            text: "回測週期"
+            color: hex("#000000")
+            size_hint: (.18, 1)
+        STextInput:
+            id: period_id
+            multiline: False
+            size_hint: (.62, .8)
+        BoxLayout:
+            size_hint: (.10, 1)
+
+    BoxLayout:
+        size_hint: (1, .02)
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .14)
+        
+        BoxLayout:
+            size_hint: (.10, 1)
+        SLabel:
+            text: "匯出檔名"
+            color: hex("#000000")
+            size_hint: (.18, 1)
+        STextInput:
+            id: filename_id
+            multiline: False
+            size_hint: (.62, .8)
+        BoxLayout:
+            size_hint: (.10, 1)
+
+    BoxLayout:
+        size_hint: (1, .02)
+        
+    BoxLayout:
+        size_hint: (1, .14)
+        orientation: 'horizontal'
+        
+        BoxLayout:
+            size_hint: (.2, 1)        
+        SButton:
+            id: ensurebtn_id
+            text: '確定'
+            size_hint: (.29, .8)
+        BoxLayout:
+            size_hint: (.02, 1)
+        SButton:
+            id: closebtn_id
+            text: '關閉'
+            size_hint: (.29, .8)
+        BoxLayout:
+            size_hint: (.2, 1)            
+
+    BoxLayout:
+        size_hint: (1, .11)

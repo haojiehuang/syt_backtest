@@ -1,0 +1,106 @@
+#:kivy 1.10.0
+
+#:import hex kivy.utils.get_color_from_hex
+
+<SExecTrade>:
+    rowdata_id: rowdata_id
+    strategy_id: strategy_id
+    savefile_id: savefile_id
+    ensurebtn_id: ensurebtn_id
+    closebtn_id: closebtn_id
+    size_hint: (1, 1)
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: hex("#FFFFFF")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        size_hint: (1, .07)
+        
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .16)
+        
+        BoxLayout:
+            size_hint: (.10, 1)
+        SLabel:
+            text: "歷史報價"
+            color: hex("#000000")
+            size_hint: (.18, 1)
+        STextInput:
+            id: rowdata_id
+            multiline: False
+            size_hint: (.62, .8)
+        BoxLayout:
+            size_hint: (.10, 1)
+    
+    BoxLayout:
+        size_hint: (1, .02)
+                
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .16)
+        
+        BoxLayout:
+            size_hint: (.10, 1)
+        SLabel:
+            text: "策略名稱"
+            color: hex("#000000")
+            size_hint: (.18, 1)
+        SButton:
+            id: strategy_id
+            multiline: False
+            text: ""
+            size_hint: (.62, 1)
+            halign: "center"
+            valign: "middle"
+        BoxLayout:
+            size_hint: (.10, 1)
+    
+    BoxLayout:
+        size_hint: (1, .02)
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .16)
+        
+        BoxLayout:
+            size_hint: (.10, 1)
+        SLabel:
+            text: "儲存檔名"
+            color: hex("#000000")
+            size_hint: (.18, 1)
+        STextInput:
+            id: savefile_id
+            multiline: False
+            size_hint: (.62, .8)
+        BoxLayout:
+            size_hint: (.10, 1)
+
+    BoxLayout:
+        size_hint: (1, .02)
+        
+    BoxLayout:
+        size_hint: (1, .16)
+        orientation: 'horizontal'
+        
+        BoxLayout:
+            size_hint: (.2, 1)        
+        SButton:
+            id: ensurebtn_id
+            text: '確定'
+            size_hint: (.29, .8)
+        BoxLayout:
+            size_hint: (.02, 1)
+        SButton:
+            id: closebtn_id
+            text: '關閉'
+            size_hint: (.29, .8)
+        BoxLayout:
+            size_hint: (.2, 1)            
+
+    BoxLayout:
+        size_hint: (1, .07)

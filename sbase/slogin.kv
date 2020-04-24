@@ -1,0 +1,102 @@
+#:kivy 1.10.0
+
+<SLogin>:
+    user_id: user_id
+    saveuser_id: saveuser_id
+    pwd_id: pwd_id
+    loginbtn_id: loginbtn_id
+    closebtn_id: closebtn_id
+    size_hint: (1, 1)
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: hex("#00142D")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        size_hint: (1, .09)
+        
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .12)
+        
+        BoxLayout:
+            size_hint: (.12, 1)
+        SLabel:
+            text: "會員帳號"
+            color: hex("#FFFFFF")
+            text_size: (root.width, None)
+            size: self.texture_size
+            size_hint: (.16, 1)
+            halign: 'right'
+            valign: 'middle'
+        STextInput:
+            id: user_id
+            multiline: False
+            size_hint: (.40, .8)
+            valign: 'middle'
+        CheckBox:
+            id: saveuser_id
+            size_hint: (.06, 1)
+            color: hex("#FFFFFF")
+        SLabel:
+            text: "記住帳密"
+            color: hex("#FFFFFF")
+            size_hint: (.16, 1)
+        BoxLayout:
+            size_hint: (.10, 1)
+    
+    BoxLayout:
+        size_hint: (1, .02)
+                
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .12)
+        
+        BoxLayout:
+            size_hint: (.12, 1)
+        SLabel:
+            text: "會員密碼"
+            color: hex("#FFFFFF")
+            text_size: (root.width, None)
+            size: self.texture_size
+            size_hint: (.16, 1)
+            halign: 'right'
+            valign: 'middle'
+        STextInput:
+            id: pwd_id
+            multiline: False
+            size_hint: (.40, .8)
+            password: True
+        BoxLayout:
+            size_hint: (.32, 1)
+    
+    BoxLayout:
+        size_hint: (1, .02)
+
+    BoxLayout:
+        size_hint: (1, .02)
+        
+    BoxLayout:
+        size_hint: (1, .12)
+        orientation: 'horizontal'
+        
+        BoxLayout:
+            size_hint: (.2, 1)        
+        SButton:
+            id: loginbtn_id
+            text: '登入'
+            size_hint: (.29, .8)
+        BoxLayout:
+            size_hint: (.02, 1)
+        SButton:
+            id: closebtn_id
+            text: '關閉'
+            size_hint: (.29, .8)
+        BoxLayout:
+            size_hint: (.2, 1)            
+
+    BoxLayout:
+        size_hint: (1, .09)

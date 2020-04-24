@@ -1,0 +1,125 @@
+#:kivy 1.10.0
+
+#:import hex kivy.utils.get_color_from_hex
+
+<SbtGraph>:
+    body_layout: body_layout.__self__
+    content_layout: content_layout.__self__
+    bt_file_id: bt_file_id
+    page_id: page_id
+    totalpage_id: totalpage_id
+    prepage_id: prepage_id
+    nextpage_id: nextpage_id
+    bigsize_id: bigsize_id
+    smallsize_id: smallsize_id
+    
+    orientation: "vertical"
+    size_hint: (1, 1)
+    padding: 2
+    canvas.before:
+        Color:
+            rgba: hex("#00142D")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        size_hint: (1, None)
+        height: 30
+        orientation: "horizontal"
+        padding: 2
+
+        BoxLayout:
+            size_hint: (.12, 1)
+
+        Label:
+            id: bt_file_id
+            text: ""
+            markup: True
+            color: hex("#7FC8C7")
+            size_hint: (.26, 1)
+            halign: "left"
+
+        BoxLayout:
+            size_hint: (.06, 1)
+
+        BoxLayout:
+            size_hint: (.16, 1)
+            orientation: "horizontal"
+            
+            SLabel:
+                text: "第"
+                color: hex("#FFFFFF")
+                size_hint: (.16, 1)
+                halign: "right"
+            STextInput:
+                id: page_id
+                multiline: False
+                text: "1"
+                size_hint: (.32, 1)
+                multiline: False
+            SLabel:
+                text: "/"
+                color: hex("#FFFFFF")
+                size_hint: (.16, 1)
+                halign: "center"
+            SLabel:
+                id: totalpage_id
+                text: "1"
+                color: hex("#FFFFFF")
+                size_hint: (.32, 1)
+                halign: "left"
+            BoxLayout:
+                size_hint: (.04, 1)
+        
+        BoxLayout:
+            size_hint: (.35, 1)
+            orientation: "horizontal"
+
+            SButton:
+                id: prepage_id
+                text: "上一頁"
+                size_hint: (.24, .7)
+                halign: "center"
+                valign: "middle"
+                on_release: root.onChangePage("PrePage")
+            BoxLayout:
+                size_hint: (.01, 1)
+            SButton:
+                id: nextpage_id
+                text: "下一頁"
+                size_hint: (.24, .7)
+                halign: "center"
+                valign: "middle"
+                on_release: root.onChangePage("NextPage")
+            BoxLayout:
+                size_hint: (.01, 1)
+            SButton:
+                id: bigsize_id
+                text: "放大"
+                size_hint: (.24, .7)
+                halign: "center"
+                valign: "middle"
+                on_release: root.onChangeDrawSize("bigSize")
+            BoxLayout:
+                size_hint: (.01, 1)
+            SButton:
+                id: smallsize_id
+                text: "縮小"
+                size_hint: (.24, .7)
+                halign: "center"
+                valign: "middle"
+                on_release: root.onChangeDrawSize("smallSize")
+            BoxLayout:
+                size_hint: (.01, 1)
+
+        BoxLayout:
+            size_hint: (.05, 1)
+    
+    BoxLayout:
+        id: body_layout
+        size_hint: (1, .95)
+        
+        BoxLayout:
+            id: content_layout
+            size_hint: (1, 1)

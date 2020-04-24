@@ -1,0 +1,30 @@
+#:kivy 1.10.0
+
+<StkQuote>:
+    head_layout: head_layout.__self__
+    body_layout: body_layout.__self__
+    size_hint: (1, 1)
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: hex("#00142D")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    STableBoxLayout:
+        size_hint: (1, None)
+        height: 1
+        
+    STableBoxLayout:
+        id: head_layout
+        size_hint: (1, None)
+        height: 30
+
+    STableBoxLayout:
+        size_hint: (1, None)
+        height: 1
+
+    STableScrollView:
+        id: body_layout
+        size_hint: (1, .95)

@@ -1,0 +1,181 @@
+#:kivy 1.10.0
+
+<SStrategySetting>:
+    strategy_id: strategy_id
+    filename_id: filename_id
+    ensureLayout_id: ensureLayout_id
+    closebtn_id: closebtn_id
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: hex("#00142D")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        size_hint:(1, .06)
+        
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .10)
+        
+        BoxLayout:
+            size_hint:(.15, 1)
+        SLabel:
+            text: "策略名稱"
+            color: hex("#FFFFFF")
+            text_size: (root.width, None)
+            size: self.texture_size
+            size_hint: (.16, 1)
+            halign: 'right'
+            valign: 'middle'
+        STextInput:
+            id: strategy_id
+            multiline: False
+            size_hint: (.54, .75)
+        BoxLayout:
+            size_hint:(.15, 1)
+    
+    BoxLayout:
+        size_hint:(1, .02)
+                
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .10)
+        
+        BoxLayout:
+            size_hint:(.15, 1)
+        SLabel:
+            text: "檔案名稱"
+            color: hex("#FFFFFF")
+            text_size: (root.width, None)
+            size: self.texture_size
+            size_hint: (.16, 1)
+            halign: 'right'
+            valign: 'middle'
+        STextInput:
+            id: filename_id
+            multiline: False
+            size_hint: (.54, .75)
+        BoxLayout:
+            size_hint:(.15, 1)
+
+    BoxLayout:
+        size_hint:(1, .02)
+    
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .10)
+        
+        BoxLayout:
+            size_hint:(.10, 1)
+        SLabel:
+            text: "交易策略設定說明: "
+            color: hex("#FFFFFF")
+            text_size: (root.width, None)
+            size: self.texture_size
+            size_hint: (.7, 1)
+            halign: 'left'
+            valign: 'middle'
+    
+    BoxLayout:
+        size_hint:(1, .005)
+    
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .10)
+        
+        BoxLayout:
+            size_hint:(.10, 1)
+        SLabel:
+            text: "  1.設定策略規則，作為交易執行之用。"
+            color: hex("#FFFFFF")
+            text_size: (root.width, None)
+            size: self.texture_size
+            size_hint: (.7, 1)
+            halign: 'left'
+            valign: 'middle'
+    
+    BoxLayout:
+        size_hint:(1, .005)
+    
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .10)
+        
+        BoxLayout:
+            size_hint:(.10, 1)
+        SLabel:
+            text: "  2.策略名稱可自定，以不超過20個中文字為原則。"
+            color: hex("#FFFFFF")
+            text_size: (root.width, None)
+            size: self.texture_size
+            size_hint: (.7, 1)
+            halign: 'left'
+            valign: 'middle'
+    
+    BoxLayout:
+        size_hint:(1, .005)
+    
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .10)
+        
+        BoxLayout:
+            size_hint:(.10, 1)
+        SLabel:
+            text: "  3.策略名稱輸入，按確定後，"
+            color: hex("#FFFFFF")
+            text_size: (root.width, None)
+            size: self.texture_size
+            size_hint: (.7, 1)
+            halign: 'left'
+            valign: 'middle'
+    
+    BoxLayout:
+        size_hint:(1, .005)
+    
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .10)
+        
+        BoxLayout:
+            size_hint:(.10, 1)
+        SLabel:
+            text: "    會以文字編輯器開啟上述之檔案名。"
+            color: hex("#FFFFFF")
+            text_size: (root.width, None)
+            size: self.texture_size
+            size_hint: (.7, 1)
+            halign: 'left'
+            valign: 'middle'
+    
+    BoxLayout:
+        size_hint:(1, .02)
+
+    BoxLayout:
+        size_hint: (1, .11)
+        orientation: 'horizontal'
+        
+        BoxLayout:
+            size_hint: (.15, 1) 
+        BoxLayout:
+            id: ensureLayout_id
+            size_hint: (.30, 1)
+            
+            Widget:
+                size_hint: (1, 1)
+        BoxLayout:
+            size_hint: (.1, 1)
+        SButton:
+            id: closebtn_id
+            text: '取消'
+            size_hint: (.30, 1)
+            halign: 'center'
+            valign: 'middle'
+        BoxLayout:
+            size_hint: (.15, 1)            
+            
+    BoxLayout:
+        size_hint:(1, .06)

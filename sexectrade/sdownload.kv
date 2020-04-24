@@ -1,0 +1,206 @@
+#:kivy 1.10.0
+
+<SDownload>:
+    account_id: account_id
+    datatypebtn_id: datatypebtn_id
+    stock_id: stock_id
+    startdate_id: startdate_id
+    totaldays_id: totaldays_id
+    datestr_id: datestr_id
+    closebtn_id: closebtn_id
+    size_hint: (1, 1)
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: hex("#00142D")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        size_hint: (1, .09)
+        
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .12)
+        
+        BoxLayout:
+            size_hint: (.15, 1)
+        SLabel:
+            text: "交易帳號"
+            color: hex("#FFFFFF")
+            size_hint: (.16, 1)
+            halign: 'right'
+        BoxLayout:
+            size_hint: (.01, 1)
+        SButton:
+            id: account_id
+            multiline: False
+            text: ""
+            size_hint: (.34, 1)
+            halign: "center"
+            valign: "middle"
+        BoxLayout:
+            size_hint: (.34, 1)
+
+    BoxLayout:
+        size_hint: (1, .02)
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .12)
+        
+        BoxLayout:
+            size_hint: (.15, 1)
+        SLabel:
+            text: "商品代碼"
+            color: hex("#FFFFFF")
+            size_hint: (.16, 1)
+            halign: 'right'
+        STextInput:
+            id: stock_id
+            multiline: False
+            size_hint: (.34, .8)
+        BoxLayout:
+            size_hint: (.02, 1)
+        SButton:
+            size_hint: (.02, .8)
+            text: "?"
+            on_release: root.showExplain()
+        BoxLayout:
+            size_hint: (.31, 1)
+
+    BoxLayout:
+        size_hint: (1, .02)
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .12)
+        
+        BoxLayout:
+            size_hint: (.15, 1)
+        SLabel:
+            text: "資料類型"
+            color: hex("#FFFFFF")
+            size_hint: (.16, 1)
+            halign: 'right'
+        SButton:
+            id: datatypebtn_id
+            text: '月線'
+            size_hint: (.34, .8)
+        BoxLayout:
+            size_hint: (.35, 1)
+
+    BoxLayout:
+        size_hint: (1, .02)
+    
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .12)
+        
+        BoxLayout:
+            size_hint: (.21, 1)
+        SLabel:
+            text: "起始日"
+            color: hex("#FFFFFF")
+            size_hint: (.1, 1)
+            halign: 'right'
+        STextInput:
+            id: startdate_id
+            multiline: False
+            size_hint: (.34, .8)
+        BoxLayout:
+            size_hint: (.01, 1)
+        STextInput:
+            id: totaldays_id
+            multiline: False
+            size_hint: (.14, .8)
+        SLabel:
+            id: datestr_id
+            text: "月"
+            color: hex("#FFFFFF")
+            size_hint: (.06, 1)
+        BoxLayout:
+            size_hint: (.14, 1)
+
+    BoxLayout:
+        size_hint: (1, .02)
+        
+    BoxLayout:
+        size_hint: (1, .12)
+        orientation: 'horizontal'
+        
+        BoxLayout:
+            size_hint: (.2, 1)        
+        SButton:
+            text: '開始下載'
+            size_hint: (.29, .8)
+            on_release: root.downloadData()
+        BoxLayout:
+            size_hint: (.02, 1)
+        SButton:
+            id: closebtn_id
+            text: '關閉'
+            size_hint: (.29, .8)
+        BoxLayout:
+            size_hint: (.2, 1)            
+
+    BoxLayout:
+        size_hint: (1, .09)
+
+<DatatypeDropDown>:
+    SButton:
+        text: '月線'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('月線')
+    SButton:
+        text: '週線'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('週線')
+    SButton:
+        text: '日線'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('日線')
+    SButton:
+        text: 'tick線'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('tick線')
+    SButton:
+        text: '1分線'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('1分線')
+    SButton:
+        text: '5分線'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('5分線')
+    SButton:
+        text: '10分線'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('10分線')
+    SButton:
+        text: '15分線'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('15分線')
+    SButton:
+        text: '20分線'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('20分線')
+    SButton:
+        text: '30分線'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('30分線')
+    SButton:
+        text: '60分線'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('60分線')

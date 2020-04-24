@@ -1,0 +1,67 @@
+#:kivy 1.10.0
+
+#:import hex kivy.utils.get_color_from_hex
+
+<SOptionSelect>:
+    contentLayout_id: contentLayout_id
+    ensurebtn_id: ensurebtn_id
+    resetbtn_id: resetbtn_id
+    selectbtn_id: selectbtn_id
+    closebtn_id: closebtn_id
+    
+    orientation: "vertical"
+    size_hint: (1, 1)
+    padding: 2
+    
+    canvas.before:
+        Color:
+            rgba: hex("#00142D")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
+    BoxLayout:
+        id: contentLayout_id
+        size_hint: (1, .89)
+    
+    BoxLayout:
+        size_hint: (1, .01)
+        
+    BoxLayout:
+        size_hint: (1, .1)
+        orientation: 'horizontal'
+        
+        BoxLayout:
+            size_hint: (.09, 1)        
+        SButton:
+            id: ensurebtn_id
+            text: '確定'
+            size_hint: (.19, 1)
+            halign: 'center'
+            valign: 'middle'
+        BoxLayout:
+            size_hint: (.02, 1)
+        SButton:
+            id: resetbtn_id
+            text: '重置'
+            size_hint: (.19, 1)
+            halign: 'center'
+            valign: 'middle'
+        BoxLayout:
+            size_hint: (.02, 1)
+        SButton:
+            id: selectbtn_id
+            text: '已選'
+            size_hint: (.19, 1)
+            halign: 'center'
+            valign: 'middle'
+        BoxLayout:
+            size_hint: (.02, 1)
+        SButton:
+            id: closebtn_id
+            text: '離開'
+            size_hint: (.19, 1)
+            halign: 'center'
+            valign: 'middle'
+        BoxLayout:
+            size_hint: (.09, 1)

@@ -1,0 +1,15 @@
+#:kivy 1.10.0
+
+#:import hex kivy.utils.get_color_from_hex
+
+<SBacktest>:
+    body_layout: body_layout.__self__
+    
+    orientation: "vertical"
+    size_hint: (1, 1)
+    padding: 2
+            
+    Widget:
+        id: body_layout
+        size_hint: (1, 1)
+        pos_hint: {'x':0, 'y':0}

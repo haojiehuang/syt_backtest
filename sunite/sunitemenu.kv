@@ -1,0 +1,70 @@
+#:kivy 1.10.0
+
+#:import os os
+#:import hex kivy.utils.get_color_from_hex
+
+<MenuButton>:
+    background_normal: ""
+    background_color: hex("#7198AB")
+    color: hex("#000000")
+    halign: "center"
+    valign: 'middle'
+    background_disabled_normal: ""
+    font_name: os.environ['WINDIR'] + '\Fonts\mingliu.ttc'
+
+<SubMenuButton>:
+    background_normal: ""
+    background_color: hex("#ACD1CF")
+    color: hex("#000000")
+    halign: "center"
+    valign: 'middle'
+    background_disabled_normal: ""
+    font_name: os.environ['WINDIR'] + '\Fonts\mingliu.ttc'
+
+<SUniteMenu>:
+    menuId: menuId.__self__
+    body_layout: body_layout.__self__
+    content_layout: content_layout.__self__
+    size_hint: (1, 1)
+    canvas.before:
+        Color:
+            rgba: hex("#20438E")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        pos_hint: {'x':0, 'y':.99}
+        size_hint: (1, .01)
+
+    BoxLayout:
+        pos_hint: {'x':0, 'y':.95}
+        size_hint: (1, .04)
+        orientation: 'horizontal'
+
+        BoxLayout:
+            id: menuId
+            size_hint: (.8, 1)
+            orientation: 'horizontal'
+        
+        BoxLayout:
+            size_hint: (.2, 1)
+
+    BoxLayout:
+        pos_hint: {'x':0, 'y':.94}
+        size_hint: (1, .01)
+                
+    BoxLayout:
+        id: body_layout
+        pos_hint: {'x':0, 'y':0}
+        size_hint: (1, .94)
+        
+        Widget:
+            id: content_layout
+            size_hint:(1, 1)
+            canvas.before:
+                Color:
+                    rgba: hex("#20438E")
+                Rectangle:
+                    pos: self.pos
+                    size: self.size

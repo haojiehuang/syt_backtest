@@ -1,0 +1,87 @@
+#:kivy 1.10.0
+
+#:import hex kivy.utils.get_color_from_hex
+
+<StkQuery>:
+    body_layout: body_layout.__self__
+    content_layout: content_layout.__self__
+    queryStr_id: queryStr_id
+    queryBtn_id: queryBtn_id
+    ensureBtn_id: ensureBtn_id
+    cancelBtn_id: cancelBtn_id
+    
+    orientation: "vertical"
+    size_hint: (1, 1)
+    padding: 2
+    canvas.before:
+        Color:
+            rgba: hex("#00142D")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        size_hint: (1, None)
+        height: 30
+        orientation: "horizontal"
+        padding: 2
+
+        BoxLayout:
+            size_hint: (.01, 1)
+
+        SLabel:
+            text: "關鍵字查詢:"
+            color: hex("#FFFFFF")
+            size_hint: (.13, 1)
+        BoxLayout:
+            size_hint: (.01, 1)
+        STextInput:
+            id: queryStr_id
+            multiline: False
+            text: ""
+            size_hint: (.32, 1)
+
+        BoxLayout:
+            size_hint: (.02, 1)
+            
+        SButton:
+            id: queryBtn_id
+            text: "查詢"
+            size_hint: (.11, 1)
+            halign: "center"
+            valign: "middle"
+            on_release: root._queryStk()
+
+        BoxLayout:
+            size_hint: (.05, 1)
+    
+    BoxLayout:
+        id: body_layout
+        size_hint: (1, .95)
+        
+        Widget:
+            id: content_layout
+            size_hint: (1, 1)
+    
+    BoxLayout:
+        size_hint: (1, None)
+        height: 30
+        orientation: "horizontal"
+        padding: 2
+
+        SButton:
+            id: ensureBtn_id
+            text: "確定"
+            size_hint: (.49, 1)
+            halign: "center"
+            valign: "middle"
+
+        BoxLayout:
+            size_hint: (.02, 1)
+            
+        SButton:
+            id: cancelBtn_id
+            text: "取消"
+            size_hint: (.49, 1)
+            halign: "center"
+            valign: "middle"

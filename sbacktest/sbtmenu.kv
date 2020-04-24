@@ -1,0 +1,62 @@
+#:kivy 1.10.0
+
+<SBTMenu>:
+    body_layout: body_layout.__self__
+    size_hint: (1, 1)
+    exitLayout_id: exitLayout_id
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: hex("#00142D")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        size_hint: (1, .01)
+        
+    BoxLayout:
+        size_hint: (1, .04)
+        orientation: 'horizontal'
+
+        BoxLayout:
+            size_hint: (.6, 1)
+            orientation: 'horizontal' 
+
+            BoxLayout:
+                size_hint: (.01, 1)
+            SButton:
+                text: '回測'
+                size_hint: (.24, 1)
+                halign: 'center'
+                valign: 'middle'
+                on_release: root.sselectFile()
+            BoxLayout:
+                size_hint: (.01, 1)
+            SButton:
+                text: '成本設定'
+                size_hint: (.24, 1)
+                halign: 'center'
+                valign: 'middle'
+                on_release: root.stradeCost()
+            BoxLayout:
+                size_hint: (.01, 1)
+            SButton:
+                text: '結果分析'
+                size_hint: (.24, 1)
+                halign: 'center'
+                valign: 'middle'
+                on_release: root.analyzeBacktest()
+            BoxLayout:
+                size_hint: (.01, 1)
+            BoxLayout:
+                size_hint: (.24, 1)
+                id: exitLayout_id
+            
+        BoxLayout:
+            size_hint: (.4, 1)
+            orientation: 'horizontal' 
+
+    Widget:
+        id: body_layout
+        size_hint: (1, .95)

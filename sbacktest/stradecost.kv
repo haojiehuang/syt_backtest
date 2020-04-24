@@ -1,0 +1,140 @@
+#:kivy 1.10.0
+
+<SCostSetting>:
+    rule_id: rule_id
+    tradeunit_id: tradeunit_id
+    cost_id: cost_id
+    ensureLayout_id: ensureLayout_id
+    closebtn_id: closebtn_id
+    orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: hex("#00142D")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        size_hint:(1, .12)
+        
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .13)
+        
+        BoxLayout:
+            size_hint:(.25, 1)
+        SLabel:
+            text: "規則名稱"
+            color: hex("#FFFFFF")
+            text_size: (root.width, None)
+            size: self.texture_size
+            size_hint: (.16, 1)
+            halign: 'right'
+            valign: 'middle'
+        STextInput:
+            id: rule_id
+            multiline: False
+            size_hint: (.34, .75)
+        BoxLayout:
+            size_hint:(.25, 1)
+    
+    BoxLayout:
+        size_hint:(1, .04)
+                
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .13)
+        
+        BoxLayout:
+            size_hint:(.11, 1)
+        SLabel:
+            text: "交易單位/契約乘數"
+            color: hex("#FFFFFF")
+            text_size: (root.width, None)
+            size: self.texture_size
+            size_hint: (.30, 1)
+            halign: 'right'
+            valign: 'middle'
+        STextInput:
+            id: tradeunit_id
+            multiline: False
+            size_hint: (.34, .75)
+        BoxLayout:
+            size_hint: (.02, 1)
+        SButton:
+            size_hint: (.02, .75)
+            text: "?"
+            on_release: root.showExplain()
+        BoxLayout:
+            size_hint:(.21, 1)
+
+    BoxLayout:
+        size_hint:(1, .04)
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .13)
+        
+        BoxLayout:
+            size_hint:(.17, 1)
+        SLabel:
+            text: "手續費+交易稅"
+            color: hex("#FFFFFF")
+            text_size: (root.width, None)
+            size: self.texture_size
+            size_hint: (.24, 1)
+            halign: 'right'
+            valign: 'middle'
+        STextInput:
+            id: cost_id
+            multiline: False
+            text: "0"
+            size_hint: (.34, .75)
+        BoxLayout:
+            size_hint:(.25, 1)
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (1, .13)
+        
+        BoxLayout:
+            size_hint:(.15, 1)
+        SLabel:
+            text: "單邊成交計算成本(包含交易手續費及交易稅)"
+            color: hex("#FFFFFF")
+            text_size: (root.width, None)
+            size: self.texture_size
+            size_hint: (.7, 1)
+            halign: 'right'
+            valign: 'middle'
+        BoxLayout:
+            size_hint:(.15, 1)
+
+    BoxLayout:
+        size_hint:(1, .04)
+
+    BoxLayout:
+        size_hint: (1, .14)
+        orientation: 'horizontal'
+        
+        BoxLayout:
+            size_hint: (.15, 1)
+        BoxLayout:
+            id: ensureLayout_id
+            size_hint: (.30, 1)
+            
+            Widget:
+                size_hint: (1, 1)
+        BoxLayout:
+            size_hint: (.1, 1)
+        SButton:
+            id: closebtn_id
+            text: '取消'
+            size_hint: (.30, 1)
+            halign: 'center'
+            valign: 'middle'
+        BoxLayout:
+            size_hint: (.15, 1)            
+            
+    BoxLayout:
+        size_hint:(1, .12)

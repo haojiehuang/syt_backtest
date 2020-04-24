@@ -1,0 +1,358 @@
+#:kivy 1.10.0
+
+#:import os os
+#:import hex kivy.utils.get_color_from_hex
+#:set fontName os.environ['WINDIR'] + '\Fonts\mingliu.ttc'
+
+<SLabel>:
+    text_size: self.size
+    valign: 'middle'
+    font_name: fontName
+
+<SCordLabel>:
+    font_name: fontName
+
+<SHeadLabel>:
+    color: hex("#000000")            
+    canvas.before:
+        Color:
+            rgba: hex("#DDDDDD")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    text_size: self.size
+    halign: "center"
+    valign: 'middle'
+    font_name: fontName
+
+<SContentLabel>:         
+    canvas.before:
+        Color:
+            rgba: hex("#FFFFFF")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    text_size: self.size
+    font_name: fontName
+    valign: 'middle'
+
+<SInfoButton>:
+    background_normal: ""
+    background_color: hex("#508CD6")
+    color: hex("#FFFFFF")
+    halign: "center"
+    valign: 'middle'
+    background_disabled_normal: ""
+    font_name: fontName
+    
+<SRowButton>:
+    background_normal: ""
+    background_color: hex("#508CD6")
+    color: hex("#FFFFFF")
+    halign: "center"
+    valign: 'middle'
+    background_disabled_normal: ""
+    font_name: fontName
+    
+<SButton>:
+    background_normal: ""
+    background_color: hex("#508CD6")
+    color: hex("#FFFFFF")
+    halign: "center"
+    valign: 'middle'
+    background_disabled_normal: ""
+    font_name: fontName
+
+<SButton2>:
+    background_normal: ""
+    background_color: hex("#305C92")
+    color: hex("#FFFFFF")
+    halign: "center"
+    valign: 'middle'
+    background_disabled_normal: ""
+    font_name: fontName
+
+<SHeadSortedButton>:
+    background_normal: ""
+    background_color: hex("#DDDDDD")
+    color: hex("#000000")
+    halign: "center"
+    valign: 'middle'
+    background_disabled_normal: ""
+    font_name: fontName
+
+<MButton>:
+    background_normal: ""
+    background_color: hex("#7198AB")
+    color: hex("#000000")
+    halign: "center"
+    valign: 'middle'
+    background_disabled_normal: ""
+    font_name: fontName
+
+<STextInput>:
+    text_size: root.width, None
+    foreground_color: hex("#000000") if self.focus else hex("#000000")
+    background_color: hex("#FAFAFA")
+    font_name: fontName
+    font_size: 14
+
+<SOptionTextInput>:
+    text_size: root.width, None
+    foreground_color: hex("#000000") if self.focus else hex("#0000FF")
+    background_color: hex("#FAFAFA")
+    font_name: fontName
+    font_size: 16
+
+<SInfoLayout>:
+    canvas.before:
+        Color:
+            rgba: hex("#7DC3C5")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<STableGridLayout>:
+    canvas.before:
+        Color:
+            rgba: hex("#DCE8F7")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<STableBoxLayout>:
+    canvas.before:
+        Color:
+            rgba: hex("#DCE8F7")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<STableScrollView>:
+    canvas.before:
+        Color:
+            rgba: hex("#DCE8F7")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<SPopup>:
+    separator_color: hex("#FFFFFF")
+    separator_height: 1
+    title_color: hex("#FFFFFF")
+    title_size: 16
+    canvas.before:
+        Color:
+            rgba: hex("#00142D")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<SBoxLayout>:
+    canvas.before:
+        Color:
+            rgba: hex("#FFFFFF")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<SBoxLayout2>:
+    canvas.before:
+        Color:
+            rgba: hex("#C7B9BE")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<SConfirmLayout>:
+    yesbtn_id: yesbtn_id
+    nobtn_id: nobtn_id
+    orientation: 'vertical'
+    size_hint: (1, 1)
+    padding: (1, 1, 1, 1)
+    canvas.before:
+        Color:
+            rgba: hex("#FFFFFF")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
+    BoxLayout:
+        size_hint: (1, .4)
+    
+    BoxLayout:
+        size_hint: (1, .2)
+        orientation: 'horizontal'
+        size_hint: (1, 1)
+        padding: (1, 1, 1, 1)
+        
+        BoxLayout:
+            size_hint: (.25, 1)
+        SButton:
+            id: yesbtn_id
+            text: '是'
+            size_hint: (.20, 1)
+            halign: 'center'
+            valign: 'middle'
+        BoxLayout:
+            size_hint: (.1, 1)
+        SButton:
+            id: nobtn_id
+            text: '否'
+            size_hint: (.20, 1)
+            halign: 'center'
+            valign: 'middle'
+        BoxLayout:
+            size_hint: (.25, 1)
+    
+    BoxLayout:
+        size_hint: (1, .4)
+
+<SRowConfirmLayout>:
+    yesLayout_id: yesLayout_id
+    nobtn_id: nobtn_id
+    orientation: 'vertical'
+    size_hint: (1, 1)
+    padding: (1, 1, 1, 1)
+    canvas.before:
+        Color:
+            rgba: hex("#FFFFFF")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
+    BoxLayout:
+        size_hint: (1, .4)
+    
+    BoxLayout:
+        size_hint: (1, .2)
+        orientation: 'horizontal'
+        size_hint: (1, 1)
+        padding: (1, 1, 1, 1)
+        
+        BoxLayout:
+            size_hint: (.25, 1)
+
+        BoxLayout:
+            id: yesLayout_id
+            size_hint: (.20, 1)
+
+            Widget:
+                size_hint: (1, 1)
+        BoxLayout:
+            size_hint: (.1, 1)
+            
+        SButton:
+            id: nobtn_id
+            text: '否'
+            size_hint: (.20, 1)
+            halign: 'center'
+            valign: 'middle'
+        BoxLayout:
+            size_hint: (.25, 1)
+    
+    BoxLayout:
+        size_hint: (1, .4)
+
+<SDirSelectDialog>:
+    filechooser_id: filechooser_id
+    
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserIconView:
+            id: filechooser_id
+            filters: [root.selected]
+            multiselect: False
+            dirselect: True
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            SButton:
+                text: "確定"
+                on_release: root.load(filechooser_id.path, filechooser_id.selection)
+
+            BoxLayout:
+                size_hint: (.01, 1)
+                
+            SButton:
+                text: "離開"
+                on_release: root.cancel()
+
+<SFileSelectDialog>:
+    filechooser_id: filechooser_id
+    
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserIconView:
+            id: filechooser_id
+            multiselect: False
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            SButton:
+                text: "確定"
+                on_release: root.load(filechooser_id.path, filechooser_id.selection)
+
+            BoxLayout:
+                size_hint: (.01, 1)
+                
+            SButton:
+                text: "離開"
+                on_release: root.cancel()
+
+<SFileInputDialog>:
+    filechooser_id: filechooser_id
+    filename_id: filename_id
+    
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserIconView:
+            id: filechooser_id
+            on_selection: root.selected(filechooser_id.selection)
+            multiselect: False
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            
+            BoxLayout:
+                size_hint: (.1, 1)
+            SLabel:
+                text: "檔案名稱"
+                color: hex("#FFFFFF")
+                size_hint: (.1, 1)
+            BoxLayout:
+                size_hint: (.01, 1)
+            STextInput:
+                id: filename_id
+                multiline: False
+                text: ""
+                size_hint: (.7, 1)
+            BoxLayout:
+                size_hint: (.1, 1)
+        
+        BoxLayout:
+            size_hint_y: None
+            height: 1
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            SButton:
+                text: "確定"
+                on_release: root.load(filechooser_id.path, filename_id.text)
+
+            BoxLayout:
+                size_hint: (.01, 1)
+                
+            SButton:
+                text: "離開"
+                on_release: root.cancel()
