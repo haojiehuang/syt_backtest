@@ -81,12 +81,12 @@ class SelfStkQuote(BoxLayout):
                 self.selfgroup_id.text = selfGroupList[1]
                 self.selfgroup_index = int(selfGroupList[0])
             self.selfDict[int(selfGroupList[0])] = selfGroupList
-            abtn = SInfoButton(infoIndex=int(selfGroupList[0]), text=selfGroupList[1])
+            abtn = SInfoButton(extra_info=int(selfGroupList[0]), text=selfGroupList[1])
             abtn.size_hint_y = None
             abtn.height = 30
             abtn.bind(on_release=self.selfDropDown.select)
             self.selfDropDown.add_widget(abtn)
-            self.dropDownDict[str(abtn.infoIndex)] = abtn
+            self.dropDownDict[str(abtn.extra_info)] = abtn
             
         self.selfgroup_id.bind(on_release=self.selfDropDown.open)
         self.selfDropDown.bind(on_select=self.selfSelect)
@@ -124,7 +124,7 @@ class SelfStkQuote(BoxLayout):
     
     def selfSelect(self, instance, atext):
         self.selfgroup_id.text = atext.text
-        self.selfgroup_index = atext.infoIndex        
+        self.selfgroup_index = atext.extra_info        
         self.stkquote.clearQuote() #變更自選組合，先清掉之前的畫面        
         selfStkListStr = self.selfDict.get(self.selfgroup_index)[2] #取得新的自選組合
         if selfStkListStr == "" or len(selfStkListStr) == 0:
@@ -438,21 +438,21 @@ class SelfStkQuote(BoxLayout):
         
     def doQuote(self):
         
+        r = abxtoolkit.add_listener([self.my_callback_func])
+
         if self.selfgroup_index not in self.selfDict:
             return
         selfStkListStr = self.selfDict.get(self.selfgroup_index)[2]
         if selfStkListStr == "" or len(selfStkListStr) == 0:
             self._calcPageInfo()
             return
-
-        r = abxtoolkit.add_listener([self.my_callback_func])
         
         self.selfStkList = selfStkListStr.split("|")
         self._calcPageInfo()
         self.subscribeQuote()
         
     def subscribeQuote(self):
-        
+
         if len(self.selfStkList) == 0:
             quote_condition = []
         else:

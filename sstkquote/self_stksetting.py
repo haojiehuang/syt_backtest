@@ -8,19 +8,20 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.sep + "sbase" + os.sep))
 
 from kivy.lang import Builder
-from kivy.uix.checkbox import CheckBox
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.dropdown import DropDown
 from kivy.uix.label import Label
 from kivy.properties import ObjectProperty
 from kivy.utils import get_color_from_hex as colorHex
 
-from selements import SRowButton, SButton, SLabel, SHeadLabel, SPopup, SContentLabel, SBoxLayout, SBoxLayout2
+from selements import SInfoButton, SButton, SLabel, SHeadLabel, SPopup, SContentLabel
+from selements import SBoxLayout, SSysBoxLayout, SCheckBox
 from selements import STextInput, STableBoxLayout, SRowConfirmLayout, STableGridLayout, STableScrollView
 import sutil
 import sconsts as CONSTS
 
-MAX_SELECT_STK_NUM = 500
+NUM_PER_PAGE = 100
+INSERT_ROW_ID = "新增"
 
 with open(os.path.join(os.path.dirname(__file__), "self_stksetting.kv"), encoding = "utf-8") as f:
     Builder.load_string(f.read())
@@ -39,29 +40,70 @@ class StkQuery(BoxLayout):
         self.paramDict = paramDict
         self.app = self.paramDict.get(CONSTS.S_APP)
         
-        self.resultObjDict = {}
+        self.num_per_page = NUM_PER_PAGE
+        self.page_num = 1
+        self.max_page_num = 1        
+        
         self.resultIdNameList = []
+        self.selectDict = {}
+        self.selectIdNameList = []
+        self.contentView = None
+        self.pageLayout = None
+        self.enterPageLayout = None
+        self.nextPreLayout = None
         
     def _queryStk(self):
         
         queryStr = self.queryStr_id.text
-        resultDict = {}
+        self.resultIdNameList.clear()
+        self.selectDict.clear()
         stkName = None
-        resultNum = 0
         for stkId in self.app.stkNameDict.keys():
-            if resultNum > MAX_SELECT_STK_NUM:
-                break
             stkName = self.app.stkNameDict.get(stkId)
-            if stkName.find(queryStr) != -1:
-                resultNum += 1
-                resultDict[stkId] = stkName
+            if stkId[2:].find(queryStr) != -1 or stkName.find(queryStr) != -1:
+                self.resultIdNameList.append([stkId, stkName])
         self.body_layout.remove_widget(self.content_layout)
-        if len(resultDict) == 0:
+        if self.contentView != None:
+            self.contentView.clear_widgets()
+        if self.pageLayout != None:
+            self.pageLayout.clear_widgets()
+        if self.enterPageLayout != None:
+            self.enterPageLayout.clear_widgets()
+        if self.nextPreLayout != None:
+            self.nextPreLayout.clear_widgets()
+        if len(self.resultIdNameList) == 0:
             return
-        contentView = STableBoxLayout(size_hint=(1, 1), orientation="vertical")
+        
+        self.contentView = STableBoxLayout(size_hint=(1, 1), orientation="vertical")
+        
+        if len(self.resultIdNameList) > NUM_PER_PAGE:
+            self.pageLayout = SSysBoxLayout(orientation="horizontal", size_hint=(1, None), height=30, padding=2)
+            self.pageLayout.add_widget(BoxLayout(size_hint=(.50, 1)))
+            self.enterPageLayout = BoxLayout(orientation="horizontal", size_hint=(.20, 1))
+            self.enterPageLayout.add_widget(SLabel(text="第", color=colorHex("#FFFFFF"), size_hint=(.16, 1), halign="right"))
+            self.page_id = STextInput(text="1", multiline=False, size_hint=(.32, 1))
+            self.page_id.bind(on_text_validate=self._on_page_id_enter)
+            self.enterPageLayout.add_widget(self.page_id)
+            self.enterPageLayout.add_widget(SLabel(text="/", color=colorHex("#FFFFFF"), size_hint=(.16, 1), halign="center"))
+            self.totalpage_id = SLabel(text="1", color=colorHex("#FFFFFF"), size_hint=(.32, 1), halign="left")
+            self.enterPageLayout.add_widget(self.totalpage_id)
+            self.enterPageLayout.add_widget(BoxLayout(size_hint=(.04, 1)))
+            self.pageLayout.add_widget(self.enterPageLayout)
+            self.nextPreLayout = BoxLayout(orientation="horizontal", size_hint=(.3, 1))
+            self.prepage_id = SButton(text="上一頁", size_hint=(.28, 1), halign="center", valign="middle")
+            self.prepage_id.bind(on_release=self._onChangePage)
+            self.nextPreLayout.add_widget(self.prepage_id)
+            self.nextPreLayout.add_widget(BoxLayout(size_hint=(.01, 1)))
+            self.nextpage_id = SButton(text="下一頁", size_hint=(.28, 1), halign="center", valign="middle")
+            self.nextpage_id.bind(on_release=self._onChangePage)
+            self.nextPreLayout.add_widget(self.nextpage_id)
+            self.pageLayout.add_widget(self.nextPreLayout)
+            self.contentView.add_widget(self.pageLayout)
+
+            self._calcPageInfo()
         
         headLayout = STableGridLayout(cols=3, rows=1, spacing=2, size_hint=(1, None), height=30)
-        headLabel = SHeadLabel(text="選擇", size_hint=(.15, 1))
+        headLabel = SHeadLabel(text="勾選", size_hint=(.15, 1))
         headLabel.halign: 'center'
         headLabel.valign: 'middle'
         headLayout.add_widget(headLabel)
@@ -73,63 +115,133 @@ class StkQuery(BoxLayout):
         headLabel.halign: 'center'
         headLabel.valign: 'middle'
         headLayout.add_widget(headLabel)
-        contentView.add_widget(headLayout)
+        self.contentView.add_widget(headLayout)
         
         slview = STableScrollView()
-        slview.size_hint = (1, .95)
-        contentLayout = STableGridLayout(cols=3, spacing=2, size_hint_y=None)
+        if len(self.resultIdNameList) > NUM_PER_PAGE:
+            slview.size_hint = (1, .95)
+        else:
+            slview.size_hint = (1, .95)
+        self.gridLayout = STableGridLayout(cols=3, spacing=2, size_hint_y=None)
         # Make sure the height is such that there is something to scroll.
-        contentLayout.bind(minimum_height=contentLayout.setter('height'))
+        self.gridLayout.bind(minimum_height=self.gridLayout.setter('height'))
         
-        slview.add_widget(contentLayout)
+        slview.add_widget(self.gridLayout)
         
-        contentView.add_widget(slview)
+        self.contentView.add_widget(slview)
+
+        self._addContentData()
+        self.content_layout = self.contentView
+        self.body_layout.add_widget(self.content_layout)
+    
+    def _calcPageInfo(self):
+        stkListNum = len(self.resultIdNameList)
+
+        self.max_page_num = int(stkListNum / self.num_per_page)
+        tmpNum = stkListNum % self.num_per_page
+        if tmpNum != 0:
+            self.max_page_num += 1
+        if self.page_num > self.max_page_num:
+            self.page_num = self.max_page_num
+    
+        self.page_id.text = str(self.page_num) 
+        self.totalpage_id.text = str(self.max_page_num)
+    
+    def _on_page_id_enter(self, instance):
+        topage_num = int(instance.text)
+        pageNum = 0
+        if topage_num < 1:
+            pageNum = 1
+        elif topage_num > self.max_page_num:
+            pageNum = self.max_page_num
+        else:
+            pageNum = topage_num
+        self.page_id.text = str(pageNum)
+        if pageNum == self.page_num:
+            return
+
+        self.page_num = pageNum
+
+        self._addContentData()
+
+    def _onChangePage(self, instance):
+        if instance.text == "下一頁":
+            if self.page_num == self.max_page_num:
+                self.page_num = 1
+            else:
+                self.page_num += 1
+        elif instance.text == "上一頁":
+            if self.page_num == 1:
+                self.page_num = self.max_page_num
+            else:
+                self.page_num -= 1
+        else:
+            topage_num = int(changePage)
+            if topage_num < 1:
+                self.page_num = 1
+            elif topage_num > self.max_page_num:
+                self.page_num = self.max_page_num
+            self.topage_txt = str(self.page_num)
+
+        self.page_id.text = str(self.page_num)
+
+        self._addContentData()
+
+    def _addContentData(self):
         
-        self.resultObjDict.clear()
+        self.gridLayout.clear_widgets()
         
-        rowList = None
-        for stkId in resultDict.keys():
-            rowList = []
-            stkName = resultDict.get(stkId)
+        startIdx = (self.page_num - 1) * NUM_PER_PAGE
+        endIdx = self.page_num * NUM_PER_PAGE
+        if endIdx > len(self.resultIdNameList):
+            endIdx = len(self.resultIdNameList)        
+        
+        idNameList = None
+        refParam = None
+        for aIdx in range(startIdx, endIdx):
+            idNameList = self.resultIdNameList[aIdx]
             funcLayout = SBoxLayout(size_hint=(.15, None), height=30)
             funcLayout.orientation = "horizontal"
             funcLayout.padding = (1, 1, 1, 1)
             funcLayout.add_widget(BoxLayout(size_hint=(.1, 1)))
-            acbObj = CheckBox()
-            acbObj.color = colorHex("#000000")
-            acbObj.active = False
+            refParam = {}
+            refParam["idNameList"] = idNameList
+            acbObj = SCheckBox(refParam)
             acbObj.size_hint = (1, 1)
+            if idNameList[0] in self.selectDict:
+                acbObj.active = True
+            else:
+                acbObj.active = False
+            acbObj.bind(active=self._on_checkbox_active)
             funcLayout.add_widget(acbObj)
             funcLayout.add_widget(BoxLayout(size_hint=(.1, 1)))
-            rowList.append(acbObj)
-            contentLayout.add_widget(funcLayout)
-            contentLabel = SContentLabel(text=stkId, size_hint=(.2, None), height=30)
+            self.gridLayout.add_widget(funcLayout)
+            contentLabel = SContentLabel(text=idNameList[0][2:], size_hint=(.2, None), height=30)
             contentLabel.color = colorHex("#000000")
             contentLabel.halign = "center"
             contentLabel.valign = "middle"
-            rowList.append(contentLabel)
-            contentLayout.add_widget(contentLabel)
-            contentLabel = SContentLabel(text=stkName, size_hint=(.65, None), height=30)
+            self.gridLayout.add_widget(contentLabel)
+            contentLabel = SContentLabel(text=idNameList[1], size_hint=(.65, None), height=30)
             contentLabel.color = colorHex("#000000")
             contentLabel.halign = "left"
             contentLabel.valign = "middle"
-            rowList.append(contentLabel)
-            contentLayout.add_widget(contentLabel)
-        
-            self.resultObjDict[stkId] = rowList
-        
-        self.content_layout = contentView
-        self.body_layout.add_widget(self.content_layout)
+            self.gridLayout.add_widget(contentLabel)        
     
+    def _on_checkbox_active(self, acheckbox, value):
+        
+        if value:
+            self.selectDict[acheckbox.idNameList[0]] = acheckbox.idNameList
+        else:
+            self.selectDict.pop(acheckbox.idNameList[0])
+        
     def doSelectStk(self):
-        if len(self.resultObjDict) == 0:
+        if len(self.selectDict) == 0:
             return
-        self.resultIdNameList.clear()     
-        rowList = None
-        for stkId in self.resultObjDict.keys():
-            rowList = self.resultObjDict.get(stkId)
-            if rowList[0].active == True:
-                self.resultIdNameList.append([stkId, rowList[2].text])
+        self.selectIdNameList.clear()     
+        aList = None
+        for stkId in self.selectDict.keys():
+            aList = self.selectDict.get(stkId)
+            self.selectIdNameList.append(aList)
 
 class SelfStkSetting(BoxLayout):
         
@@ -181,8 +293,7 @@ class SelfStkSetting(BoxLayout):
         self.add_widget(headLayout)
         
         self.add_widget(STableBoxLayout(size_hint=(1, None), height=2))
-        
-        self.maxIndex = 0
+
         self.def_ids = {}
         
         slview = STableScrollView()
@@ -202,10 +313,9 @@ class SelfStkSetting(BoxLayout):
                 tmpList.append("")
             else:
                 tmpList.append(stkName)
-            self.addListRow(tmpList, False)
-            self.maxIndex += 1            
+            self.addListRow(tmpList)       
 
-        self.addInsertRow(str(self.maxIndex))
+        self.addInsertRow()
         slview.add_widget(self.contentLayout)
         
         self.add_widget(slview)
@@ -218,16 +328,14 @@ class SelfStkSetting(BoxLayout):
         bottomLayout.add_widget(self.cancelbtn_id)
         self.add_widget(bottomLayout)
 
-    def addListRow(self, alist, aflag):
-        if aflag:
-            self.deleteRow(self.maxIndex)
+    def addListRow(self, alist):
         
         rowList = []
         funcLayout = SBoxLayout(size_hint=(.15, None), height=30)
         funcLayout.orientation = "horizontal"
         funcLayout.padding = (1, 1, 1, 1)
         funcLayout.add_widget(BoxLayout(size_hint=(.1, 1)))
-        btn = SRowButton(infoIndex=self.maxIndex, text = "刪", size_hint = (.8, 1))
+        btn = SInfoButton(extra_info=alist[0], text = "刪", size_hint = (.8, 1))
         btn.halign = "center"
         btn.valign = "middle"
         btn.bind(on_release=self.deleteRecordPopup)
@@ -235,7 +343,7 @@ class SelfStkSetting(BoxLayout):
         funcLayout.add_widget(BoxLayout(size_hint=(.1, 1)))
         rowList.append(funcLayout)
         self.contentLayout.add_widget(funcLayout)
-        contentLabel = SContentLabel(text=alist[0], size_hint=(.2, None), height=30)
+        contentLabel = SContentLabel(text=alist[0][2:], size_hint=(.2, None), height=30)
         contentLabel.color = colorHex("#000000")
         contentLabel.halign = "center"
         contentLabel.valign = "middle"
@@ -248,15 +356,15 @@ class SelfStkSetting(BoxLayout):
         rowList.append(contentLabel)
         self.contentLayout.add_widget(contentLabel)
         
-        self.def_ids[self.maxIndex] = rowList
+        self.def_ids[alist[0]] = rowList
 
-    def deleteRow(self, rowIndex):
-        rowList = self.def_ids.get(rowIndex)
+    def deleteRow(self, rowId):
+        rowList = self.def_ids.get(rowId)
         for obj in rowList:
             self.contentLayout.remove_widget(obj)
-        self.def_ids.pop(rowIndex)
-        if rowIndex < len(self.selfStkList):
-            self.selfStkList.pop(rowIndex)
+        self.def_ids.pop(rowId)
+        if rowId in self.selfStkList:
+            self.selfStkList.remove(rowId)
 
     def saveData(self):
         stkListStr = ""
@@ -276,13 +384,13 @@ class SelfStkSetting(BoxLayout):
                     astr = tmpStr + "\n"
                 f.write(astr)
 
-    def addInsertRow(self, strIndex):
+    def addInsertRow(self):
         rowList = []
         funcLayout = SBoxLayout(size_hint=(.15, None), height=30)
         funcLayout.orientation = "horizontal"
         funcLayout.padding = (1, 1, 1, 1)
         funcLayout.add_widget(BoxLayout(size_hint=(.1, 1)))
-        btn = SButton(text="新增", size_hint=(.8, 1))
+        btn = SInfoButton(extra_info=INSERT_ROW_ID, text="新增", size_hint=(.8, 1))
         btn.halign = "center"
         btn.valign = "middle"
         btn.bind(on_release=self.addRecordPopup)
@@ -301,7 +409,7 @@ class SelfStkSetting(BoxLayout):
         rowList.append(contentLabel)
         self.contentLayout.add_widget(contentLabel)
         
-        self.def_ids[int(strIndex)] = rowList
+        self.def_ids[INSERT_ROW_ID] = rowList
 
     def addRecordPopup(self, instance):
         refDict = {}
@@ -318,27 +426,29 @@ class SelfStkSetting(BoxLayout):
     def addRecordEvent(self, instance):
         self.add_scsLayout.doSelectStk()
         
-        if len(self.add_scsLayout.resultIdNameList) == 0:
+        if len(self.add_scsLayout.selectIdNameList) == 0:
             return
         
-        for aList in self.add_scsLayout.resultIdNameList:
-            self.addListRow(aList, True)
-            self.selfStkList.append(aList[0])
-            self.maxIndex += 1
-            self.addInsertRow(str(self.maxIndex))
+        self.deleteRow(INSERT_ROW_ID)
 
+        for aList in self.add_scsLayout.selectIdNameList:
+            self.addListRow(aList)
+            self.selfStkList.append(aList[0])
+        
+        self.addInsertRow()
+        
         self.add_popup.dismiss()        
 
     def deleteRecordPopup(self, instance):
         self.deleteConfirm = SRowConfirmLayout()
         self.del_popup = SPopup(title="刪除自選股票", content=self.deleteConfirm,
                 size_hint=(None, None), size=(240, 160), auto_dismiss=False)
-        self.deleteConfirm.yesbtn_id.infoIndex = instance.infoIndex
+        self.deleteConfirm.yesbtn_id.extra_info = instance.extra_info
         self.deleteConfirm.yesbtn_id.bind(on_press=self.deleteRecordEvent)
         self.deleteConfirm.nobtn_id.bind(on_press=self.del_popup.dismiss)
         self.del_popup.title_font = CONSTS.FONT_NAME
         self.del_popup.open()
 
     def deleteRecordEvent(self, instance):
-        self.deleteRow(instance.infoIndex)
+        self.deleteRow(instance.extra_info)
         self.del_popup.dismiss()
