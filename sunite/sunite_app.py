@@ -93,6 +93,31 @@ class SUniteApp(App):
                 size_hint=(None, None), size=(200, 200), auto_dismiss=False)
         contentBtn.bind(on_press=popup.dismiss)
         popup.title_font = CONSTS.FONT_NAME
+        popup.open()
+    
+    def showErrorMsg(self, msgCode, errDesc):
+        msgCodeDict = self.confDict.get(CONSTS.MSG_CODE_DICT)
+        msgText = msgCodeDict.get(msgCode)
+        if msgText == None:
+            msgText = "Unknow error code->" + str(msgCode)
+        msgText += "->" + errDesc
+        contentLayout = BoxLayout()
+        contentLayout.orientation = "vertical"
+        contentLayout.size_hint = (1, 1)
+        from selements import SLabel
+        contentLabel = SLabel(text=msgText, size_hint=(1, .8))
+        contentLabel.halign = "center"
+        contentLayout.add_widget(contentLabel)
+
+        sysConfDict = self.confDict.get(CONSTS.SYS_CONF_DICT)
+
+        from selements import SButton
+        contentBtn = SButton(text=sysConfDict.get("MSG_CONFIRM"), size_hint=(1, .2))
+        contentLayout.add_widget(contentBtn)    
+        popup = Popup(title=sysConfDict.get("MSG_TITLE"), content=contentLayout,
+                size_hint=(None, None), size=(200, 200), auto_dismiss=False)
+        contentBtn.bind(on_press=popup.dismiss)
+        popup.title_font = CONSTS.FONT_NAME
         popup.open()    
         
 if __name__ == '__main__':
