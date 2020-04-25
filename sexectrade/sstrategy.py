@@ -15,7 +15,7 @@ from kivy.properties import ObjectProperty
 from kivy.utils import get_color_from_hex as colorHex
 import threading
 
-from selements import SRowButton, SButton, SLabel, SHeadLabel, SPopup, SContentLabel, SBoxLayout
+from selements import SInfoButton, SButton, SLabel, SHeadLabel, SPopup, SContentLabel, SBoxLayout
 from selements import STableBoxLayout, SRowConfirmLayout, STableGridLayout, STableScrollView
 import sutil
 import sconsts as CONSTS
@@ -32,13 +32,13 @@ class SStrategySetting(BoxLayout):
     filename_id = ObjectProperty(None)
     ensureLayout_id = ObjectProperty(None)
     closebtn_id = ObjectProperty(None)
-    infoIndex = None
+    extra_info = None
     ensurebtn_id = None
     
     def __init__(self, paramDict, **kwargs):
         super(SStrategySetting, self).__init__(**kwargs)
 
-        self.ensurebtn_id = SRowButton(infoIndex = self.infoIndex)
+        self.ensurebtn_id = SInfoButton(extra_info=self.extra_info)
         self.ensurebtn_id.text = "確定"
         self.ensurebtn_id.size_hint = (1, 1)
         self.ensurebtn_id.halign = "center"
@@ -136,19 +136,19 @@ class SStrategy(BoxLayout):
         funcLayout.orientation = "horizontal"
         funcLayout.padding = (1, 1, 1, 1)
         funcLayout.add_widget(BoxLayout(size_hint=(.06, 1)))
-        btn = SRowButton(infoIndex=self.maxIndex, text="修", size_hint=(.14, 1))
+        btn = SInfoButton(extra_info=self.maxIndex, text="修", size_hint=(.14, 1))
         btn.halign = "center"
         btn.valign = "middle"
         btn.bind(on_release=self.updateRecordPopup)
         funcLayout.add_widget(btn)
         funcLayout.add_widget(BoxLayout(size_hint=(.02, 1)))
-        btn = SRowButton(infoIndex=self.maxIndex, text="刪", size_hint=(.14, 1))
+        btn = SInfoButton(extra_info=self.maxIndex, text="刪", size_hint=(.14, 1))
         btn.halign = "center"
         btn.valign = "middle"
         btn.bind(on_release=self.deleteRecordPopup)
         funcLayout.add_widget(btn)
         funcLayout.add_widget(BoxLayout(size_hint=(.02, 1)))        
-        btn = SRowButton(infoIndex=self.maxIndex, text="編輯策略", size_hint=(.56, 1))
+        btn = SInfoButton(extra_info=self.maxIndex, text="編輯策略", size_hint=(.56, 1))
         btn.halign = "center"
         btn.valign = "middle"
         btn.bind(on_release=self.editContent)
@@ -274,17 +274,17 @@ class SStrategy(BoxLayout):
         self.update_scsLayout = SStrategySetting(refDict)
         self.update_popup = SPopup(title="修改策略", content=self.update_scsLayout,
                 size_hint=(None, None), size=(560, 440), auto_dismiss=False)
-        self.update_scsLayout.ensurebtn_id.infoIndex = instance.infoIndex
+        self.update_scsLayout.ensurebtn_id.extra_info = instance.extra_info
         self.update_scsLayout.ensurebtn_id.bind(on_press=self.updateRecordEvent)
         self.update_scsLayout.closebtn_id.bind(on_press=self.update_popup.dismiss)
         self.update_popup.title_font = CONSTS.FONT_NAME
-        rowList = self.def_ids.get(instance.infoIndex)
+        rowList = self.def_ids.get(instance.extra_info)
         self.update_scsLayout.strategy_id.text = rowList[1].text
         self.update_scsLayout.filename_id.text = rowList[2].text
         self.update_popup.open()
 
     def updateRecordEvent(self, instance):
-        rowIndex = instance.infoIndex
+        rowIndex = instance.extra_info
         strategyName = self.update_scsLayout.strategy_id.text
         if strategyName == None or strategyName == "":
             self.app.showMsgView(CONSTS.ERR_STRATEGY_IS_SPACE)
@@ -312,17 +312,17 @@ class SStrategy(BoxLayout):
         self.deleteConfirm = SRowConfirmLayout()
         self.del_popup = SPopup(title="刪除策略", content=self.deleteConfirm,
                 size_hint=(None, None), size=(240, 160), auto_dismiss=False)
-        self.deleteConfirm.yesbtn_id.infoIndex = instance.infoIndex
+        self.deleteConfirm.yesbtn_id.extra_info = instance.extra_info
         self.deleteConfirm.yesbtn_id.bind(on_press=self.deleteRecordEvent)
         self.deleteConfirm.nobtn_id.bind(on_press=self.del_popup.dismiss)
         self.del_popup.title_font = CONSTS.FONT_NAME
         self.del_popup.open()
 
     def deleteRecordEvent(self, instance):
-        self.deleteRow(instance.infoIndex)
+        self.deleteRow(instance.extra_info)
         self.del_popup.dismiss()
     
     def editContent(self, instance):
-        rowList = self.def_ids.get(int(instance.infoIndex))
+        rowList = self.def_ids.get(int(instance.extra_info))
         filePath = os.path.join(save_dir, rowList[2].text)
         os.system(os.path.abspath(filePath))

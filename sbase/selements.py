@@ -9,6 +9,7 @@ from kivy.lang import Builder
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.label import Label
 from kivy.uix.button import Button
+from kivy.uix.checkbox import CheckBox
 from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -24,19 +25,11 @@ DEFAULT_PADDING = 6
 
 class SInfoButton(Button):
     
-    infoIndex = None
+    extra_info = None
     
-    def __init__(self, infoIndex, **kwargs):
+    def __init__(self, extra_info, **kwargs):
         super(SInfoButton, self).__init__(**kwargs)
-        self.infoIndex = infoIndex
-
-class SRowButton(Button):
-    
-    infoIndex = None
-    
-    def __init__(self, infoIndex, **kwargs):
-        super(SRowButton, self).__init__(**kwargs)
-        self.infoIndex = infoIndex
+        self.extra_info = extra_info
 
 class SButton(Button):
     pass
@@ -79,6 +72,13 @@ class SLabel(Label):
 
 class SCordLabel(Label):
     pass
+
+class SCheckBox(CheckBox):
+
+    def __init__(self, paraName, **kwargs):
+        super(SCheckBox, self).__init__(**kwargs)
+        self.paraName = paraName
+        self.idNameList = self.paraName.get("idNameList")
 
 class STextInput(TextInput):
     pass
@@ -156,7 +156,7 @@ class SContentLabel(Label):
 class SBoxLayout(BoxLayout):
     pass
 
-class SBoxLayout2(BoxLayout):
+class SSysBoxLayout(BoxLayout):
     pass
 
 class SConfirmLayout(BoxLayout):
@@ -172,13 +172,13 @@ class SRowConfirmLayout(BoxLayout):
     yesLayout_id = ObjectProperty(None)
     nobtn_id = ObjectProperty(None)
     yesbtn_id = None
-    infoIndex = None
+    extra_info = None
     
     def __init__(self, **kwargs):
         super(SRowConfirmLayout, self).__init__()
         self.kwargs = kwargs
         
-        self.yesbtn_id = SRowButton(infoIndex = self.infoIndex)
+        self.yesbtn_id = SInfoButton(extra_info=self.extra_info)
         self.yesbtn_id.text = "是"
         self.yesbtn_id.size_hint = (.20, 1)
         self.yesbtn_id.halign = "center"

@@ -14,7 +14,7 @@ from kivy.uix.label import Label
 from kivy.properties import ObjectProperty
 from kivy.utils import get_color_from_hex as colorHex
 
-from selements import SRowButton, SButton, SLabel, SHeadLabel, SPopup, SContentLabel, SBoxLayout
+from selements import SInfoButton, SButton, SLabel, SHeadLabel, SPopup, SContentLabel, SBoxLayout
 from selements import STableBoxLayout, SRowConfirmLayout, STableGridLayout, STableScrollView
 import sutil
 import sconsts as CONSTS
@@ -29,13 +29,13 @@ class SCostSetting(BoxLayout):
     cost_id = ObjectProperty(None)
     ensureLayout_id = ObjectProperty(None)
     closebtn_id = ObjectProperty(None)
-    infoIndex = None
+    extra_info = None
     ensurebtn_id = None
     
     def __init__(self, paramDict, **kwargs):
         super(SCostSetting, self).__init__(**kwargs)
         
-        self.ensurebtn_id = SRowButton(infoIndex = self.infoIndex)
+        self.ensurebtn_id = SInfoButton(extra_info=self.extra_info)
         self.ensurebtn_id.text = "確定"
         self.ensurebtn_id.size_hint = (1, 1)
         self.ensurebtn_id.halign = "center"
@@ -154,13 +154,13 @@ class STradeCost(BoxLayout):
         funcLayout.orientation = "horizontal"
         funcLayout.padding = (1, 1, 1, 1)
         funcLayout.add_widget(BoxLayout(size_hint=(.09, 1)))
-        btn = SRowButton(infoIndex=self.maxIndex, text = "修", size_hint = (.4, 1))
+        btn = SInfoButton(extra_info=self.maxIndex, text = "修", size_hint = (.4, 1))
         btn.halign = "center"
         btn.valign = "middle"
         btn.bind(on_release=self.updateRecordPopup)
         funcLayout.add_widget(btn)
         funcLayout.add_widget(BoxLayout(size_hint=(.02, 1)))
-        btn = SRowButton(infoIndex=self.maxIndex, text = "刪", size_hint = (.4, 1))
+        btn = SInfoButton(extra_info=self.maxIndex, text = "刪", size_hint = (.4, 1))
         btn.halign = "center"
         btn.valign = "middle"
         btn.bind(on_release=self.deleteRecordPopup)
@@ -301,11 +301,11 @@ class STradeCost(BoxLayout):
         self.update_scsLayout = SCostSetting(refDict)
         self.update_popup = SPopup(title="修改規則", content=self.update_scsLayout,
                 size_hint=(None, None), size=(480, 360), auto_dismiss=False)
-        self.update_scsLayout.ensurebtn_id.infoIndex = instance.infoIndex
+        self.update_scsLayout.ensurebtn_id.extra_info = instance.extra_info
         self.update_scsLayout.ensurebtn_id.bind(on_press=self.updateRecordEvent)
         self.update_scsLayout.closebtn_id.bind(on_press=self.update_popup.dismiss)
         self.update_popup.title_font = CONSTS.FONT_NAME
-        rowList = self.def_ids.get(instance.infoIndex)
+        rowList = self.def_ids.get(instance.extra_info)
         self.update_scsLayout.rule_id.text = rowList[1].text
         self.update_scsLayout.tradeunit_id.text = rowList[2].text
         self.update_scsLayout.cost_id.text = rowList[3].text
@@ -327,7 +327,7 @@ class STradeCost(BoxLayout):
             self.app.showMsgView(CONSTS.ERR_COST_MUST_NUMBER)
             return
         tradeUnit = self.update_scsLayout.tradeunit_id.text
-        rowList = self.def_ids.get(instance.infoIndex)
+        rowList = self.def_ids.get(instance.extra_info)
         rowList[2].text = tradeUnit
         rowList[3].text = costStr
         self.saveData()
@@ -337,12 +337,12 @@ class STradeCost(BoxLayout):
         self.deleteConfirm = SRowConfirmLayout()
         self.del_popup = SPopup(title="刪除規則", content=self.deleteConfirm,
                 size_hint=(None, None), size=(240, 160), auto_dismiss=False)
-        self.deleteConfirm.yesbtn_id.infoIndex = instance.infoIndex
+        self.deleteConfirm.yesbtn_id.extra_info = instance.extra_info
         self.deleteConfirm.yesbtn_id.bind(on_press=self.deleteRecordEvent)
         self.deleteConfirm.nobtn_id.bind(on_press=self.del_popup.dismiss)
         self.del_popup.title_font = CONSTS.FONT_NAME
         self.del_popup.open()
 
     def deleteRecordEvent(self, instance):
-        self.deleteRow(instance.infoIndex)
+        self.deleteRow(instance.extra_info)
         self.del_popup.dismiss()

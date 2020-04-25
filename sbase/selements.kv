@@ -12,6 +12,9 @@
 <SCordLabel>:
     font_name: fontName
 
+<SCheckBox>:
+    color: hex("#000000")
+
 <SHeadLabel>:
     color: hex("#000000")            
     canvas.before:
@@ -37,15 +40,6 @@
     valign: 'middle'
 
 <SInfoButton>:
-    background_normal: ""
-    background_color: hex("#508CD6")
-    color: hex("#FFFFFF")
-    halign: "center"
-    valign: 'middle'
-    background_disabled_normal: ""
-    font_name: fontName
-    
-<SRowButton>:
     background_normal: ""
     background_color: hex("#508CD6")
     color: hex("#FFFFFF")
@@ -156,10 +150,10 @@
             pos: self.pos
             size: self.size
 
-<SBoxLayout2>:
+<SSysBoxLayout>:
     canvas.before:
         Color:
-            rgba: hex("#C7B9BE")
+            rgba: hex("#00142D")
         Rectangle:
             pos: self.pos
             size: self.size
