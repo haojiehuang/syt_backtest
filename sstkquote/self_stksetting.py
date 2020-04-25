@@ -429,6 +429,14 @@ class SelfStkSetting(BoxLayout):
         if len(self.add_scsLayout.selectIdNameList) == 0:
             return
         
+        duplicatedIds = []
+        for aList in self.add_scsLayout.selectIdNameList:
+            if aList[0] in self.selfStkList:
+                duplicatedIds.append(aList[0][2:])
+        if len(duplicatedIds) != 0:
+            self.app.showErrorMsg(CONSTS.ERR_STKID_DUPLICATED, ", ".join(duplicatedIds))
+            return
+        
         self.deleteRow(INSERT_ROW_ID)
 
         for aList in self.add_scsLayout.selectIdNameList:

@@ -221,7 +221,10 @@ class StkQuote(BoxLayout):
                         if fieldIdx != None and fieldIdx != "":
                             kvObj= dispObjDict.get(fieldIdx)
                             valueList = aDict.get(headId)
-                            kvObj.text = valueList[0]
+                            if headId == "id":
+                                kvObj.text = valueList[0][2:]
+                            else:
+                                kvObj.text = valueList[0]
                             kvObj.color = colorHex(valueList[1])                            
                 self.quoteDataDict[stkId] = existDict                    
         #5001-End.
