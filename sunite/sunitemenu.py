@@ -110,6 +110,7 @@ class SUniteMenu(FloatLayout):
     sosLayout = None
     sosPopup = None
     sbacktest = None
+    selfStkQuote = None
     sselectStock = None
     fileList = None
     
@@ -309,13 +310,13 @@ class SUniteMenu(FloatLayout):
         strategyName = self.etLayout.strategy_id.text
         savefileName = self.etLayout.savefile_id.text
         if rowdataName == "":
-            self.app.showMsgView(CONSTS.ERR_UNSELECT_HISTORY_DATA)
+            self.app.showErrorView(True, CONSTS.ERR_UNSELECT_HISTORY_DATA)
             return
         elif strategyName == "":
-            self.app.showMsgView(CONSTS.ERR_UNSELECT_STRATEGY)
+            self.app.showErrorView(True, CONSTS.ERR_UNSELECT_STRATEGY)
             return
         elif savefileName == "":
-            self.app.showMsgView(CONSTS.ERR_UNSELECT_SAVEFILE)
+            self.app.showErrorView(True, CONSTS.ERR_UNSELECT_SAVEFILE)
             return
         
         strategy_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".." + os.sep + "conf" + os.sep + "strategy"))
@@ -338,7 +339,7 @@ class SUniteMenu(FloatLayout):
             if isExistFlag == False:
                 msgCodeDict = self.app.confDict.get(CONSTS.MSG_CODE_DICT)
                 msgText = msgCodeDict.get(CONSTS.ERR_STRATEGY_FILE_NOT_FOUND)               
-                self.app.showMixedMsg(strategyName, msgText)
+                self.app.showErrorView(False, strategyName, msgText)
                 return
 
         userConf = sutil.getDictFromFile(os.path.join(os.path.dirname(__file__), ".." + os.sep + "conf" + os.sep + "user.ini"))
@@ -381,7 +382,7 @@ class SUniteMenu(FloatLayout):
             errCode = self.result.get("ErrCode")
             if errCode != 0:
                 errDesc = self.result.get("ErrDesc")
-                self.app.showMixedMsg(errCode, errDesc)
+                self.app.showErrorView(False, errCode, errDesc)
             else:
                 self.finishedPopup()                
 
@@ -446,10 +447,13 @@ class SUniteMenu(FloatLayout):
     def finishedSelectFiles(self, instance):
         fileCount = len(self.ssfLayout.rightrv_id.data)
         if fileCount == 0:
-            self.app.showMsgView(CONSTS.ERR_UNSELECT_FILE)
+            self.app.showErrorView(True, CONSTS.ERR_UNSELECT_FILE)
             return
         self.ssf_popup.dismiss()
         self.saveUserConf()
+        
+        if self.selfStkQuote != None:
+            self.selfStkQuote.closeStkQuote()
         
         if self.fileList != None:
             self.fileList.clear()
@@ -529,9 +533,9 @@ class SUniteMenu(FloatLayout):
                 self.str_popup.title_font = CONSTS.FONT_NAME
                 self.str_popup.open()
             else:
-                self.app.showMsgView(CONSTS.ERR_NO_BACKTEST_DATA)
+                self.app.showErrorView(True, CONSTS.ERR_NO_BACKTEST_DATA)
         else:
-            self.app.showMsgView(CONSTS.ERR_NOT_EXECUTE_BACKTEST)
+            self.app.showErrorView(True, CONSTS.ERR_NOT_EXECUTE_BACKTEST)
 
     def stradeCost(self, instance):
         self.removeMenu()
@@ -565,7 +569,7 @@ class SUniteMenu(FloatLayout):
     
     def execOptionResult(self, instance):
         if self.sosLayout.optionList == None:
-            self.app.showMsgView(CONSTS.ERR_UNSELECT_OPTION)
+            self.app.showErrorView(True, CONSTS.ERR_UNSELECT_OPTION)
             return
         else:
             isSelectFlag = False
@@ -574,7 +578,7 @@ class SUniteMenu(FloatLayout):
                     isSelectFlag = True
                     break
             if isSelectFlag == False:
-                self.app.showMsgView(CONSTS.ERR_UNSELECT_OPTION)
+                self.app.showErrorView(True, CONSTS.ERR_UNSELECT_OPTION)
                 return                 
         self.optionPopupDismiss(instance)
         
@@ -598,7 +602,7 @@ class SUniteMenu(FloatLayout):
     
     def showOptionSelect(self, instance):
         if self.sosLayout.optionList == None:
-            self.app.showMsgView(CONSTS.ERR_UNSELECT_OPTION)
+            self.app.showErrorView(True, CONSTS.ERR_UNSELECT_OPTION)
             return
         else:
             isSelectFlag = False
@@ -607,7 +611,7 @@ class SUniteMenu(FloatLayout):
                     isSelectFlag = True
                     break
             if isSelectFlag == False:
-                self.app.showMsgView(CONSTS.ERR_UNSELECT_OPTION)
+                self.app.showErrorView(True, CONSTS.ERR_UNSELECT_OPTION)
                 return                         
         self.sosLayout.showSelectedOptionDesc()
     

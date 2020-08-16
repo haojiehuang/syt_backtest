@@ -9,15 +9,19 @@ import time
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.sep + "sbase" + os.sep))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.sep + "sstkchart" + os.sep))
 
 from kivy.lang import Builder
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.dropdown import DropDown
 from kivy.properties import ObjectProperty
 from kivy.utils import get_color_from_hex as colorHex
 
-from selements import SLabel, SHeadLabel, SHeadSortedButton, SPopup, SContentLabel
+from selements import SLabel, SHeadLabel, SHeadSortedButton, SPopup, SContentLabel, SButton, SInfoButton
 from selements import STableBoxLayout, STableGridLayout, STableScrollView
+from strend_chart import STrendChart
+from stech_chart import STechChart
 import sutil
 import sconsts as CONSTS
 
@@ -40,7 +44,13 @@ DEFAULT_BGCOLOR = "#FFFFFF"
 
 with open(os.path.join(os.path.dirname(__file__), "stkquote.kv"), encoding = "utf-8") as f:
     Builder.load_string(f.read())
+
+class StkIDDropDown(DropDown):
     
+    def __init__(self, stkId, **kwargs):
+        super(StkIDDropDown, self).__init__(**kwargs)
+        self.stkId = stkId
+        
 class StkQuote(BoxLayout):
 
     head_layout = ObjectProperty(None)
@@ -115,11 +125,12 @@ class StkQuote(BoxLayout):
                 self.dispIdList.append(self.headIdList[idx])
 
         self.headButtonList = [] #記錄標題之Button List
+        self.quoteBaseDict = {} #記錄股票基本資料之字典
         self.quoteDataDict = {} #記錄所有報價資料之字典
         """self.quoteDataDict資料格式如下所示:
            stkid: {'id': [stkId,fg_color,bg_color],'name': [stkName,fg_color,bg_color],'price': [priceValue,fg_color,bg_color], ...}
            example: 'T11101': {'id':['T11101','#000000','#FFFFFF'],'name':['台泥','#000000','#FFFFFF'],'price':[10.0,'#000000','#FFFFFF']}
-         """
+        """
         self.dispDict = {} #記錄顯示物件的字典
         """self.dispDict資料格式如下所示:
         {stkid:{'0':Kivy Object, '1': Kivy Object, ....},stkid:{'0':Kivy Object, '1': Kivy Object, ....}}
@@ -163,28 +174,150 @@ class StkQuote(BoxLayout):
             aDict[headId] = ['', DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
         return aDict 
 
+    @synchronized_with_attr("lock")
     def _getDefaultRowDict(self, aDict):
         dispObjDict = {}
-        for colIndexStr in self.dispFieldMapping.keys():
+        for colIndexStr in self.dispFieldMapping.keys():                     
             headId = self.dispFieldMapping.get(colIndexStr)
             fieldList = aDict.get(headId)
-            contentLabel = None
-            if headId == "id" or headId == "name":
-                contentLabel = SContentLabel(size_hint = (self.idWidth_hint, None), height=30)
-                contentLabel.text = fieldList[0]
-                contentLabel.color = colorHex(fieldList[1])
-                contentLabel.halign = "center"               
+            contentObj = None
+            if headId == "id":
+                """idDropDown = StkIDDropDown(stkId=fieldList[0])
+                abtn = SButton(text="走勢圖")
+                abtn.size_hint_y = None
+                abtn.height = 30
+                abtn.bind(on_release=idDropDown.select)
+                idDropDown.add_widget(abtn)
+                abtn = SButton(text="技術分析")
+                abtn.size_hint_y = None
+                abtn.height = 30
+                abtn.bind(on_release=idDropDown.select)
+                idDropDown.add_widget(abtn)"""
+                contentObj = SButton(size_hint = (self.idWidth_hint, None), height=30)
+                contentObj.text = fieldList[0]
+                contentObj.halign = "center"
+                contentObj.bind(on_press=self._id_press)
+                #contentObj.bind(on_release=idDropDown.open)
+                #idDropDown.bind(on_select=self._idDropDownSelect)     
+            elif headId == "name":
+                contentObj = SButton(size_hint = (self.idWidth_hint, None), height=30)
+                contentObj.text = fieldList[0]
+                contentObj.halign = "center"
+                contentObj.bind(on_press=self._name_press)                
             else:
-                contentLabel = SContentLabel(size_hint = (self.otherWidth_hint, None), height=30)
-                contentLabel.text = fieldList[0]
-                contentLabel.color = colorHex(fieldList[1])
+                contentObj = SContentLabel(size_hint = (self.otherWidth_hint, None), height=30)
+                contentObj.text = fieldList[0]
+                contentObj.color = colorHex(fieldList[1])
                 if headId == "TT":
-                    contentLabel.halign = "center"
+                    contentObj.halign = "center"
                 else:
-                    contentLabel.halign = "right"
-            dispObjDict[colIndexStr] = contentLabel
+                    contentObj.halign = "right"
+            dispObjDict[colIndexStr] = contentObj
         return dispObjDict
 
+    def _idDropDownSelect(self, instance, atext):
+        print("1111", instance.stkId, atext)
+
+    def _openOptionPopup(self):
+        content = BoxLayout(size_hint=(1, 1), orientation="vertical")
+        
+        strendBtn = SButton(text="走勢圖", size_hint=(1, None), height=30)
+        strendBtn.bind(on_press=self._openStrendChart)
+        content.add_widget(strendBtn)
+        
+        content.add_widget(BoxLayout(size_hint=(1, None), height=1))
+        
+        stechBtn = SButton(text="技術分析", size_hint=(1, None), height=30)
+        stechBtn.bind(on_press=self._openStechChart)
+        content.add_widget(stechBtn)
+        
+        content.add_widget(BoxLayout(size_hint=(1, None), height=1))
+
+        closeBtn = SButton(text="關閉", size_hint=(1, None), height=30)
+        content.add_widget(closeBtn)
+
+        titleName = self.oneStkDict.get("id") + " " + self.oneStkDict.get("name")
+        self.option_popup = SPopup(title=titleName, content=content, title_font=CONSTS.FONT_NAME,
+                        size_hint=(None, None), size=(240, 152), auto_dismiss=False)
+        closeBtn.bind(on_press=self.option_popup.dismiss)
+        self.option_popup.open()
+
+    def _id_press(self, instance):
+        self.oneStkDict = {}
+        for aKey in self.quoteBaseDict.keys():
+            if instance.text == aKey[2:]:
+                self.oneStkDict = self.quoteBaseDict.get(aKey)
+                break
+        
+        self._openOptionPopup()
+
+    def _name_press(self, instance):
+        self.oneStkDict = {}
+        for aKey in self.quoteBaseDict.keys():
+            aDict = self.quoteBaseDict.get(aKey)
+            if instance.text == aDict.get("name"):
+                self.oneStkDict = aDict
+                break
+
+        self._openOptionPopup()
+
+    def _openStrendChart(self, instance):
+        self.option_popup.dismiss()
+        
+        refParam = {}
+        refParam[CONSTS.S_APP] = self.app
+        refParam["StkId"] = self.oneStkDict.get("id", "")
+        refParam["StkName"] = self.oneStkDict.get("name", "")
+        refParam["StartTime"] = self.oneStkDict.get("OT")
+        refParam["EndTime"] = self.oneStkDict.get("CloseT")
+        refParam["LTD"] = self.oneStkDict.get("LTD")
+        refParam["YesPrice"] = self.oneStkDict.get("YP")
+        refParam["Decimal"] = self.oneStkDict.get("Dec")
+        self.stcLayout = STrendChart(refParam)
+        self.strend_popup = SPopup(title="走勢圖", content=self.stcLayout,
+            size_hint=(None, None), size=(720, 540), auto_dismiss=False)
+        self.stcLayout.closebtn_id.bind(on_press=self._strend_popup_dismiss)
+        self.strend_popup.title_font = CONSTS.FONT_NAME
+        self.strend_popup.open()
+
+    def _strend_popup_dismiss(self, instance):
+        self.strend_popup.dismiss()
+        self.stcLayout.removeListener()    
+
+    def _openStechChart(self, instance):
+        self.option_popup.dismiss()
+        
+        refParam = {}
+        refParam[CONSTS.S_APP] = self.app
+        refParam["StkId"] = self.oneStkDict.get("id", "")
+        refParam["StkName"] = self.oneStkDict.get("name", "")
+        refParam["LTD"] = self.oneStkDict.get("LTD")
+        refParam["Decimal"] = self.oneStkDict.get("Dec")
+        self.sttLayout = STechChart(refParam)
+        self.stech_popup = SPopup(title="技術分析", content=self.sttLayout,
+            size_hint=(None, None), size=(720, 540), auto_dismiss=False)
+        self.sttLayout.closebtn_id.bind(on_press=self._stech_popup_dismiss)
+        self.stech_popup.title_font = CONSTS.FONT_NAME
+        self.stech_popup.open()
+    
+    def _stech_popup_dismiss(self, instance):
+        self.stech_popup.dismiss()
+        self.sttLayout.removeListener()    
+
+    def updateBaseQuote(self, baseList):
+        for aDict in baseList:
+            stkId = aDict.get("id")
+            if stkId == None:
+                continue
+            else:
+                existDict = self.quoteBaseDict.get(stkId)
+                if existDict == None: #若無報價基本資料，創建一新的字典
+                    existDict = {}
+                tmpId = None
+                for headId in aDict.keys():
+                    existDict[headId] = aDict.get(headId)               
+                self.quoteBaseDict[stkId] = existDict
+        
     @synchronized_with_attr("lock")
     def updateQuote(self, quoteList):
         """
@@ -225,7 +358,8 @@ class StkQuote(BoxLayout):
                                 kvObj.text = valueList[0][2:]
                             else:
                                 kvObj.text = valueList[0]
-                            kvObj.color = colorHex(valueList[1])                            
+                            if headId != "id" and headId != "name":
+                                kvObj.color = colorHex(valueList[1])                            
                 self.quoteDataDict[stkId] = existDict                    
         #5001-End.
 
@@ -233,8 +367,23 @@ class StkQuote(BoxLayout):
     def clearQuote(self):
         if self.contentLayout != None:
             self.contentLayout.clear_widgets()
+        self.quoteBaseDict.clear()
         self.quoteDataDict.clear()
         self.dispDict.clear()
+
+    @synchronized_with_attr("lock")
+    def resetFieldsSeq(self, fieldIdList):
+        self.fieldIdList = fieldIdList
+        headIdIndex = -1
+        for aObj in self.headButtonList:
+            if aObj.headIndex == "id" or aObj.headIndex == "name":
+                continue
+            headIdIndex += 1
+            headId = self.fieldIdList[headIdIndex]
+            aObj.headIndex = headId
+            aObj.text = self.headDict.get(headId)
+
+        self._shiftDispField()        
 
     @synchronized_with_attr("lock")
     def nextField(self):
@@ -288,7 +437,10 @@ class StkQuote(BoxLayout):
                 kvObj = dispObjDict.get(rowNum)
                 headId = self.dispFieldMapping.get(rowNum)
                 aDataList = aQuoteDict.get(headId)
-                kvObj.text = aDataList[0]
+                if headId == "id":
+                    kvObj.text = aDataList[0][2:]
+                else:
+                    kvObj.text = aDataList[0]                
                 kvObj.color = colorHex(aDataList[1])
                 if headId == "id" or headId == "name" or headId == "TT":
                     kvObj.halign = "center"
@@ -301,8 +453,8 @@ class TestStkQuote(App):
 
     def build(self):
         headDict = {}
-        headDict["id"] = "股票代碼"#SID
-        headDict["name"] = "股票名稱"#SNT
+        headDict["id"] = "股票代碼" #SID
+        headDict["name"] = "股票名稱" #SNT
         headDict["TT"] = "成交時間"
         headDict["TP"] = "成交價"
         headDict["TV"] = "成交量"

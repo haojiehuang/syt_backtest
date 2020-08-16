@@ -4,13 +4,20 @@
 #:import hex kivy.utils.get_color_from_hex
 #:set fontName os.environ['WINDIR'] + '\Fonts\mingliu.ttc'
 
+<Label>:
+    font_name: fontName
+
+<Button>:
+    font_name: fontName
+
+<TextInput>:
+    font_name: fontName
+
 <SLabel>:
     text_size: self.size
     valign: 'middle'
-    font_name: fontName
 
 <SCordLabel>:
-    font_name: fontName
 
 <SCheckBox>:
     color: hex("#000000")
@@ -26,7 +33,6 @@
     text_size: self.size
     halign: "center"
     valign: 'middle'
-    font_name: fontName
 
 <SContentLabel>:         
     canvas.before:
@@ -36,7 +42,6 @@
             pos: self.pos
             size: self.size
     text_size: self.size
-    font_name: fontName
     valign: 'middle'
 
 <SInfoButton>:
@@ -46,7 +51,6 @@
     halign: "center"
     valign: 'middle'
     background_disabled_normal: ""
-    font_name: fontName
     
 <SButton>:
     background_normal: ""
@@ -55,7 +59,6 @@
     halign: "center"
     valign: 'middle'
     background_disabled_normal: ""
-    font_name: fontName
 
 <SButton2>:
     background_normal: ""
@@ -64,7 +67,6 @@
     halign: "center"
     valign: 'middle'
     background_disabled_normal: ""
-    font_name: fontName
 
 <SHeadSortedButton>:
     background_normal: ""
@@ -73,7 +75,6 @@
     halign: "center"
     valign: 'middle'
     background_disabled_normal: ""
-    font_name: fontName
 
 <MButton>:
     background_normal: ""
@@ -82,20 +83,17 @@
     halign: "center"
     valign: 'middle'
     background_disabled_normal: ""
-    font_name: fontName
 
 <STextInput>:
     text_size: root.width, None
     foreground_color: hex("#000000") if self.focus else hex("#000000")
     background_color: hex("#FAFAFA")
-    font_name: fontName
     font_size: 14
 
 <SOptionTextInput>:
     text_size: root.width, None
     foreground_color: hex("#000000") if self.focus else hex("#0000FF")
     background_color: hex("#FAFAFA")
-    font_name: fontName
     font_size: 16
 
 <SInfoLayout>:

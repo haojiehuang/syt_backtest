@@ -145,12 +145,12 @@ class SDownload(BoxLayout):
     def downloadData(self):
         useridTxt = self.account_id.text
         if useridTxt == "":
-            self.app.showMsgView(CONSTS.ERR_USER_IS_SPACE)
+            self.app.showErrorView(True, CONSTS.ERR_USER_IS_SPACE)
             return
         
         stockidTxt = self.stock_id.text
         if stockidTxt == "":
-            self.app.showMsgView(CONSTS.ERR_STOCKID_IS_SPACE)
+            self.app.showErrorView(True, CONSTS.ERR_STOCKID_IS_SPACE)
             return
         
         if useridTxt.find("@") != -1:
@@ -214,7 +214,7 @@ class SDownload(BoxLayout):
             errCode = self.result.get("ErrCode")
             if errCode != 0:
                 errDesc = self.result.get("ErrDesc")
-                self.app.showMixedMsg(errCode, errDesc)
+                self.app.showErrorView(False, errCode, errDesc)
             else:
                 self.finishedPopup(self.result.get("FileName"), self.result.get("FileLen"))
             

@@ -65,8 +65,6 @@ class SReportFile(BoxLayout):
             content = SFileInputDialog(load=self.loadDir, cancel=self.dismiss_popup)
             content.filechooser_id.path = export_path
             content.filename_id.text = ".csv"
-            #以下為一奇特的用法，為了解決filechooser中的中文碼顯示問題
-            content.filechooser_id.add_widget(Label(text=""))
             popupTitle = self.sysConfDict.get("MSG_DOWNLOAD_FILE")
             self._popup = SPopup(title=popupTitle, content=content, size_hint=(0.9, 0.9), title_font=CONSTS.FONT_NAME)
             self._popup.open()
@@ -539,7 +537,7 @@ class STradeReport(BoxLayout):
         periodName = self.rfLayout.period_id.text
         fileName = self.rfLayout.filename_id.text
         if fileName == "":
-            self.app.showMsgView(CONSTS.ERR_FILENAME_IS_SPACE)
+            self.app.showErrorView(True, CONSTS.ERR_FILENAME_IS_SPACE)
             return
         self.rf_popup.dismiss()
         

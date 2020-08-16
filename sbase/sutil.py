@@ -253,6 +253,37 @@ def formatTime(timeStr):
     
     return tarStr
 
+def formatDateTime(dateTimeStr):
+    """
+    日期時間格式如下所示:
+    1.HHmm: 返回HH:mm
+    2.HHmmss: 返回HH:mm:ss
+    3.yyyyMMdd: 返回yyyy/MM/dd
+    4.HHmmsssss: 返回HH:mm:ss.sss
+    5.yyyyMMddHHmm: 返回yyyy/MM/dd HH:mm
+    """
+    if len(dateTimeStr) <= 6:
+        return formatTime(dateTimeStr)
+    elif len(dateTimeStr) <= 8:
+        return formatDate(dateTimeStr)
+    elif len(dateTimeStr) <= 9:
+        return formatTime(dateTimeStr)
+    else:
+        dateStr = dateTimeStr[0:8]
+        timeStr = dateTimeStr[8:]
+        return formatDate(dateStr) + " " + formatTime(timeStr)    
+    
+def calcTimeNum(startTime, endTime):
+    if startTime > endTime:
+        return 0
+    aNum = 0
+    aRoundNum = None
+    for aTime in range(int(startTime), int(endTime) + 1):
+        aRoundNum = aTime % 100
+        if aRoundNum <= 59:
+            aNum += 1
+    return aNum            
+    
 def getMd5Pwd(password):
     pwdencode = password.encode('utf-8')
     return hashlib.md5(pwdencode).hexdigest()
@@ -281,5 +312,6 @@ if __name__ == '__main__':
     print(formatDate("20181101"))
     print(formatTime("90103586"))
     print(formatTime("100110009"))
+    print(calcTimeNum(900, 1330))
     #print(getMd5Pwd('135246'))
     #print(getMd5Pwd('123456'))

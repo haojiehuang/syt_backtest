@@ -5,6 +5,8 @@ kivy.require('1.11.0') # replace with your current kivy version !
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.sep + "sbase" + os.sep))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.sep + "sstkchart" + os.sep))
+
 
 from kivy.core.window import Window
 from kivy.uix.floatlayout import FloatLayout
@@ -14,6 +16,7 @@ from kivy.graphics import Point, Line, Color, Rectangle, InstructionGroup
 from kivy.utils import get_color_from_hex as colorHex
 import sconsts as CONSTS
 import sutil
+from schartutil import SMinTimeCordUtil
 import math
 from kivy.core.text import Label as CoreLabel
 from selements import SLabel, SCordLabel, SInfoLayout
@@ -22,6 +25,7 @@ class STrendGraph(FloatLayout):
     
     isFocus = True
     infoLayout = None
+    rectGridList = None
     
     def __init__(self, paramDict, **kwargs):
         super(STrendGraph, self).__init__(**kwargs)
@@ -224,43 +228,22 @@ class STrendGraph(FloatLayout):
         
     def drawFrameGrid(self):
         
-        instg = InstructionGroup(group="frame")
-        frameColor = Color()
-        frameColor.rgba = self.FRAME_COLOR
-        instg.add(frameColor)
-        x1 = self.pos[0] + self.shift_left
-        y1 = self.pos[1] + self.shift_bottom
-        x2 = self.pos[0] + self.shift_left
-        y2 = self.pos[1] + self.height - self.shift_top
-        instg.add(Line(points=(x1, y1, x2, y2), width=1))        
-        self.canvas.add(instg)
-        
-        instg = InstructionGroup(group="frame")
-        instg.add(frameColor)
-        x1 = self.pos[0] + self.width - self.shift_right
-        y1 = self.pos[1] + self.shift_bottom
-        x2 = self.pos[0] + self.width - self.shift_right
-        y2 = self.pos[1] + self.height - self.shift_top
-        instg.add(Line(points=(x1, y1, x2, y2), width=1))
-        self.canvas.add(instg)
+        # Start-01: 產生一繪製外框,線條及座標之物件
+        rectParamDict = {}
+        rectParamDict["canvas"] = self.canvas
+        rectParamDict["width"] = self.width - self.shift_left - self.shift_right
+        rectParamDict["height"] = self.height - self.shift_bottom - self.shift_top
+        rectParamDict["x_start_pos"] = self.pos[0] + self.shift_left
+        rectParamDict["y_start_pos"] = self.pos[1] + self.shift_bottom
+        rectParamDict["rectColor"] = self.FRAME_COLOR
+        rectParamDict["rectWidth"] = 1
+        rectParamDict["gridColor"] = self.GRID_COLOR
+        rectParamDict["gridWidth"] = 1        
+        rectParamDict["instGroup"] = "StrendGraph"
+        smintimeChartUtil = SMinTimeCordUtil(rectParamDict)     
+        # End-01.
 
-        instg = InstructionGroup(group="frame")
-        instg.add(frameColor)
-        x1 = self.pos[0] + self.shift_left
-        y1 = self.pos[1] + self.shift_bottom
-        x2 = self.pos[0] + self.width - self.shift_right
-        y2 = self.pos[1] + self.shift_bottom
-        instg.add(Line(points=(x1, y1, x2, y2), width=1))
-        self.canvas.add(instg)
-        
-        instg = InstructionGroup(group="frame")
-        instg.add(frameColor)
-        x1 = self.pos[0] + self.shift_left
-        y1 = self.pos[1] + self.height - self.shift_top
-        x2 = self.pos[0] + self.width - self.shift_right
-        y2 = self.pos[1] + self.height - self.shift_top
-        instg.add(Line(points=(x1, y1, x2, y2), width=1))
-        self.canvas.add(instg)
+        smintimeChartUtil.drawRectGrid() #繪製一矩形框  
 
         gridColor = Color()
         gridColor.rgba = self.GRID_COLOR        
@@ -299,6 +282,8 @@ class STrendGraph(FloatLayout):
             alabel.halign = "right"
             alabel.color = self.CORD_INFO_COLOR
             self.add_widget(alabel)
+        
+        smintimeChartUtil = None
         
     def getLineColor(self, price1, price2):
         color = Color()

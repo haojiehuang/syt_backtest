@@ -14,7 +14,6 @@ from kivy.lang import Builder
 from kivy.clock import Clock
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.dropdown import DropDown
 from kivy.properties import ObjectProperty
@@ -62,7 +61,7 @@ class SLogin(BoxLayout):
         self.loginFlag = None
         useridTxt = self.user_id.text
         if useridTxt == "":
-            self.btmenu.showMsgView(CONSTS.ERR_USER_IS_SPACE)
+            self.app.showErrorView(True, CONSTS.ERR_USER_IS_SPACE)
             return
 
         if useridTxt.find("@") != -1:
@@ -112,7 +111,7 @@ class SLogin(BoxLayout):
             if errCode != 0:
                 errDesc = self.result.get("ErrDesc")
                 self.loginFlag = False
-                self.app.showMixedMsg(errCode, errDesc)
+                self.app.showErrorView(False, errCode, errDesc)
             else:
                 self.loginFlag = True
                 self.accountIdList = self.result.get("AccountID_List")

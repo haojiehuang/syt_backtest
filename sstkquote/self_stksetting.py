@@ -434,7 +434,7 @@ class SelfStkSetting(BoxLayout):
             if aList[0] in self.selfStkList:
                 duplicatedIds.append(aList[0][2:])
         if len(duplicatedIds) != 0:
-            self.app.showErrorMsg(CONSTS.ERR_STKID_DUPLICATED, ", ".join(duplicatedIds))
+            self.app.showErrorView(True, CONSTS.ERR_STKID_DUPLICATED, duplicatedIds)
             return
         
         self.deleteRow(INSERT_ROW_ID)

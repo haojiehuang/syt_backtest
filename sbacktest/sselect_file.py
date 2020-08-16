@@ -144,8 +144,6 @@ class SSelectFile(BoxLayout):
         if value:
             content = SDirSelectDialog(load=self.loadDir, cancel=self.dismiss_popup)
             content.filechooser_id.path = self.filedir
-            #以下為一奇特的用法，為了解決filechooser中的中文碼顯示問題
-            content.filechooser_id.add_widget(Label(text=""))
             popupTitle = self.sysConfDict.get("MSG_DOWNLOAD_DIR")
             self._popup = Popup(title=popupTitle, content=content, size_hint=(0.9, 0.9), title_font=CONSTS.FONT_NAME)
             self._popup.open()
@@ -155,7 +153,7 @@ class SSelectFile(BoxLayout):
         
     def loadDir(self, path, filename):
         if len(filename) == 0:
-            self.app.showMsgView(CONSTS.ERR_UNSELECT_DIR)
+            self.app.showErrorView(True, CONSTS.ERR_UNSELECT_DIR)
             return
         self.dismiss_popup()
         
@@ -234,7 +232,7 @@ class SSelectFile(BoxLayout):
     def deleteFiles(self):
         isSelectDict = self.leftrv_id.isSelectDict
         if len(isSelectDict) == 0:
-            self.app.showMsgView(CONSTS.ERR_UNSELECT_FILE)
+            self.app.showErrorView(True, CONSTS.ERR_UNSELECT_FILE)
             return
         self.deleteConfirm = SConfirmLayout()
         self.del_popup = Popup(title="刪除檔案", content=self.deleteConfirm,
@@ -279,44 +277,28 @@ class SSelectFile(BoxLayout):
         if len(isSelectDict) != 1:
             return
         
-        keyList = isSelectDict.keys()
-        selectIndex = None
-        for key in keyList:
-            selectIndex = key
-            break
-        if selectIndex == None:
+        selectIndex = list(isSelectDict.keys())[0]
+        if selectIndex == 0:
             return
-        else:
-            if selectIndex == 0:
-                return
         adict = {}
         adict['text'] = isSelectDict.get(selectIndex)
         self.rightrv_id.data.pop(selectIndex)
         self.rightrv_id.data.insert(selectIndex - 1, adict)
-        self.rightrv_id.isSelectDict.clear()
-        self.rightrv_id.layout_manager.clear_selection()
+        self.rightrv_id.layout_manager.selected_nodes = [selectIndex - 1]
         
     def toDown(self):
         isSelectDict = self.rightrv_id.isSelectDict
         if len(isSelectDict) != 1:
             return
     
-        keyList = isSelectDict.keys()
-        selectIndex = None
-        for key in keyList:
-            selectIndex = key
-            break
-        if selectIndex == None:
+        selectIndex = list(isSelectDict.keys())[0]
+        if selectIndex == (len(self.rightrv_id.data) - 1):
             return
-        else:
-            if selectIndex == (len(self.rightrv_id.data) - 1):
-                return
         adict = {}
         adict['text'] = isSelectDict.get(selectIndex)
         self.rightrv_id.data.pop(selectIndex)
         self.rightrv_id.data.insert(selectIndex + 1, adict)
-        self.rightrv_id.isSelectDict.clear()
-        self.rightrv_id.layout_manager.clear_selection()
+        self.rightrv_id.layout_manager.selected_nodes = [selectIndex + 1]
     
     def toSort(self):
         dataList = self.rightrv_id.data

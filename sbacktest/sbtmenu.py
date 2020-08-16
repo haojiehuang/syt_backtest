@@ -81,30 +81,6 @@ class SBTMenu(BoxLayout):
                 exitBtn.valign = "middle"
                 exitBtn.bind(on_release=self.closeWindows)
                 self.exitLayout_id.add_widget(exitBtn)
-    
-    def showMsgView(self, msgCode):
-        msgCodeDict = self.confDict.get(CONSTS.MSG_CODE_DICT)
-        msgText = msgCodeDict.get(msgCode)
-        if msgText == None:
-            msgText = "Unknow error code->" + str(msgCode)
-        contentLayout = BoxLayout()
-        contentLayout.orientation = "vertical"
-        contentLayout.size_hint = (1, 1)
-        from selements import SLabel
-        contentLabel = SLabel(text=msgText, size_hint=(1, .8))
-        contentLabel.halign = "center"
-        contentLayout.add_widget(contentLabel)
-
-        sysConfDict = self.confDict.get(CONSTS.SYS_CONF_DICT)
-
-        from selements import SButton
-        contentBtn = SButton(text=sysConfDict.get("MSG_CONFIRM"), size_hint=(1, .2))
-        contentLayout.add_widget(contentBtn)    
-        popup = SPopup(title=sysConfDict.get("MSG_TITLE"), content=contentLayout,
-                size_hint=(None, None), size=(200, 200), auto_dismiss=False)
-        contentBtn.bind(on_press=popup.dismiss)
-        popup.title_font = CONSTS.FONT_NAME
-        popup.open()
 
     def closeWindows(self, obj):
         if self.app != None:
@@ -130,7 +106,7 @@ class SBTMenu(BoxLayout):
     def finishedSelectFiles(self, instance):
         fileCount = len(self.ssfLayout.rightrv_id.data)
         if fileCount == 0:
-            self.showMsgView(CONSTS.ERR_UNSELECT_FILE)
+            self.app.showErrorView(True, CONSTS.ERR_UNSELECT_FILE)
             return
         self.ssf_popup.dismiss()
         self.saveUserConf()
@@ -190,6 +166,6 @@ class SBTMenu(BoxLayout):
                 self.str_popup.title_font = CONSTS.FONT_NAME
                 self.str_popup.open()
             else:
-                self.showMsgView(CONSTS.ERR_NO_BACKTEST_DATA)
+                self.app.showErrorView(True, CONSTS.ERR_NO_BACKTEST_DATA)
         else:
-            self.showMsgView(CONSTS.ERR_NOT_EXECUTE_BACKTEST)
+            self.app.showErrorView(True, CONSTS.ERR_NOT_EXECUTE_BACKTEST)

@@ -89,8 +89,6 @@ class SExecTrade(BoxLayout):
         if value:
             content = SFileSelectDialog(load=self.loadRowdataDir, cancel=self.dismiss_rowdataPopup)
             content.filechooser_id.path = rowdata_path
-            #以下為一奇特的用法，為了解決filechooser中的中文碼顯示問題
-            content.filechooser_id.add_widget(Label(text=""))
             popupTitle = self.sysConfDict.get("MSG_DOWNLOAD_FILE")
             self._rowdataPopup = SPopup(title=popupTitle, content=content, size_hint=(0.9, 0.9), title_font=CONSTS.FONT_NAME)
             self._rowdataPopup.open()
@@ -100,7 +98,7 @@ class SExecTrade(BoxLayout):
     
     def loadRowdataDir(self, path, filename):
         if len(filename) == 0:
-            self.app.showMsgView(CONSTS.ERR_UNSELECT_FILE)
+            self.app.showErrorView(True, CONSTS.ERR_UNSELECT_FILE)
             return        
         self._rowdataPopup.dismiss()
         rowdata_path = path
@@ -123,8 +121,6 @@ class SExecTrade(BoxLayout):
         if value:
             content = SFileInputDialog(load=self.loadSavefileDir, cancel=self.dismiss_savefilePopup)
             content.filechooser_id.path = data_path
-            #以下為一奇特的用法，為了解決filechooser中的中文碼顯示問題
-            content.filechooser_id.add_widget(Label(text=""))
             popupTitle = self.sysConfDict.get("MSG_DOWNLOAD_FILE")
             self._savefilePopup = SPopup(title=popupTitle, content=content, size_hint=(0.9, 0.9), title_font=CONSTS.FONT_NAME)
             self._savefilePopup.open()
@@ -134,7 +130,7 @@ class SExecTrade(BoxLayout):
     
     def loadSavefileDir(self, path, filename):
         if len(filename) == 0:
-            self.app.showMsgView(CONSTS.ERR_UNSELECT_FILE)
+            self.app.showErrorView(True, CONSTS.ERR_UNSELECT_FILE)
             return
         self._savefilePopup.dismiss()
         data_path = path

@@ -24,6 +24,7 @@ import sconsts as CONSTS
 from selements import SLabel, SInfoButton, STextInput, SPopup
 from stkquote import StkQuote
 from self_stksetting import SelfStkSetting
+from self_fieldsetting import SFieldSetting
 import sutil
 
 stkBase_col_obj = abxtoolkit.stkBaseInfo_columns_sets()
@@ -98,22 +99,22 @@ class SelfStkQuote(BoxLayout):
 
         self.page_id.bind(on_text_validate=self._on_page_id_enter)
         
+        filePath = os.path.join(os.path.dirname(__file__), ".." + os.sep + "conf" + os.sep + "stkfields_setting.ini")
+        alist = sutil.getListFromFile(filePath)
+        headDefineDict = {}
+        for astr in alist:
+            astrList = astr.strip().split(",")
+            if len(astrList) < 2:
+                continue
+            headDefineDict[astrList[0]] = astrList[1]
         headDict = {}
-        headDict["id"] = "股票代碼"#SID
-        headDict["name"] = "股票名稱"#SNT
-        headDict["TT"] = "成交時間"
-        headDict["TP"] = "成交價"
-        headDict["TV"] = "成交量"
-        headDict["YP"] = "昨收價"
-        headDict["UD"] = "漲跌"
-        headDict["USP"] = "漲停價"
-        headDict["DSP"] = "跌停價"
-        headDict["OP"] = "開盤價"
-        headDict["HP"] = "最高價"
-        headDict["LP"] = "最低價"
-        headDict["BP"] = "買進"
-        headDict["AP"] = "賣出"
-        self.stkquote = StkQuote({CONSTS.S_APP:self,'headDict':headDict,'dispIdName':True})
+        headDict["id"] = headDefineDict.get("id")#SID
+        headDict["name"] = headDefineDict.get("name")#SNT
+        seqStr = headDefineDict.get("_SEQ_")
+        seqStrList = seqStr.split("|")
+        for headId in seqStrList:
+            headDict[headId] = headDefineDict.get(headId)
+        self.stkquote = StkQuote({CONSTS.S_APP:self.app,'headDict':headDict,'dispIdName':True})
         
         self.body_layout.remove_widget(self.content_layout)
         self.content_layout = self.stkquote
@@ -153,6 +154,18 @@ class SelfStkQuote(BoxLayout):
             self.self_setting_popup.title_font = CONSTS.FONT_NAME
             self.self_setting_popup.open()
 
+    def _fieldsSetting(self):
+        refParam = {}
+        refParam[CONSTS.S_APP] = self.app
+        sfsLayout = SFieldSetting(refParam)
+        self.sfsLayout = sfsLayout
+        self.self_fieldsetting_popup = SPopup(title="欄位排序", content=sfsLayout,
+            size_hint=(None, None), size=(300, 480), auto_dismiss=False)
+        sfsLayout.ensurebtn_id.bind(on_press=self._changeFields)
+        sfsLayout.closebtn_id.bind(on_press=self.self_fieldsetting_popup.dismiss)
+        self.self_fieldsetting_popup.title_font = CONSTS.FONT_NAME
+        self.self_fieldsetting_popup.open()
+
     def doQueryStktbl(self):
         contentLayout = BoxLayout()
         contentLayout.orientation = "vertical"
@@ -187,7 +200,7 @@ class SelfStkQuote(BoxLayout):
             errCode = self.result.get("ErrCode")
             if errCode != 0:
                 errDesc = self.result.get("ErrDesc")
-                self.app.showMixedMsg(errCode, errDesc)
+                self.app.showErrorView(False, errCode, errDesc)
             else:
                 self.finishedQueryStktbl()
 
@@ -243,6 +256,12 @@ class SelfStkQuote(BoxLayout):
         self.selfDict[selfgroup_index][2] = stkListStr
         self.stkquote.clearQuote() #變更自選組合，先清掉之前的畫面 
         self.subscribeQuote() #重新訂閱股票
+
+    def _changeFields(self, instance):
+        self.sfsLayout.saveData()
+        self.self_fieldsetting_popup.dismiss(instance)
+
+        self.stkquote.resetFieldsSeq(self.sfsLayout.fieldSeqList) #變更欄位順序
 
     def doQuoteStart(self, instance):
         threading.Thread(target=self.doQuote).start()
@@ -340,80 +359,110 @@ class SelfStkQuote(BoxLayout):
             self.stkquote.previousField()
             self.fieldLeft_id.disabled = False
 
-    def my_callback_func(self, mesgtype, stkid, data):
-        if stkid not in self.selfStkList:
+    def my_callback_func(self, a_result):
+        if a_result.errcode != 0:
+            self.app.showErrorView(False, a_result.errcode, a_result.errdes)
             return
-        if mesgtype == abxtoolkit.WATCH_TYPE.stkBase:
-            aQuoteDict = self.quoteDataDict.get(stkid)
+        if a_result.stkid == None:
+            return
+        if a_result.stkid not in self.selfStkList:
+            return
+        if a_result.mesgtype == abxtoolkit.WATCH_TYPE.stkBase:
+            aQuoteDict = self.quoteDataDict.get(a_result.stkid)
             if aQuoteDict == None:
                 aQuoteDict = {}
-                self.quoteDataDict[stkid] = aQuoteDict
+                self.quoteDataDict[a_result.stkid] = aQuoteDict
             quoteList = []
             aDict = {}
-            if "SID" in data:
-                aDict["id"] = [data["SID"], DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
-                aQuoteDict["id"] = data["SID"]
-            if "SNT" in data:
-                aDict["name"] = [data["SNT"], DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
-                aQuoteDict["id"] = data["SNT"]
+            baseList = []
+            baseDict = {}
+            aDict["id"] = [a_result.stkid, DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            baseDict["id"] = a_result.stkid
+            if "SID" in a_result.data:
+                aDict["id"] = [a_result.data["SID"], DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+                aQuoteDict["id"] = a_result.data["SID"]
+            if "SNT" in a_result.data:
+                aDict["name"] = [a_result.data["SNT"], DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+                aQuoteDict["name"] = a_result.data["SNT"]
+                baseDict["name"] = a_result.data["SNT"]
+            if "OT" in a_result.data:
+                baseDict["OT"] = a_result.data["OT"]
+            if "CloseT" in a_result.data:
+                baseDict["CloseT"] = a_result.data["CloseT"]
+            if "Dec" in a_result.data:
+                baseDict["Dec"] = a_result.data["Dec"]
             quoteList.append(aDict)
             self.stkquote.updateQuote(quoteList)
-        if mesgtype == abxtoolkit.WATCH_TYPE.stkInfo:
-            aQuoteDict = self.quoteDataDict.get(stkid)
+            baseList.append(baseDict)
+            self.stkquote.updateBaseQuote(baseList)
+        if a_result.mesgtype == abxtoolkit.WATCH_TYPE.stkInfo:
+            aQuoteDict = self.quoteDataDict.get(a_result.stkid)
             if aQuoteDict == None:
                 aQuoteDict = {}
-                self.quoteDataDict[stkid] = aQuoteDict
+                self.quoteDataDict[a_result.stkid] = aQuoteDict
             quoteList = []
             aDict = {}
-            aDict["id"] = [stkid, DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
-            if "YP" in data:
-                aDict["YP"] = ["{:.2f}".format(data["YP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
-                aQuoteDict["YP"] = data["YP"]
-                self._calcUpDown(stkid, aDict)
-            if "USP" in data:
-                aDict["USP"] = ["{:.2f}".format(data["USP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
-            if "DSP" in data:
-                aDict["DSP"] = ["{:.2f}".format(data["DSP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            baseList = []
+            baseDict = {}
+            aDict["id"] = [a_result.stkid, DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            baseDict["id"] = a_result.stkid
+            if "YP" in a_result.data:
+                aDict["YP"] = ["{:.2f}".format(a_result.data["YP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+                aQuoteDict["YP"] = a_result.data["YP"]
+                self._calcUpDown(a_result.stkid, aDict)
+                baseDict["YP"] = a_result.data["YP"]
+            if "USP" in a_result.data:
+                aDict["USP"] = ["{:.2f}".format(a_result.data["USP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            if "DSP" in a_result.data:
+                aDict["DSP"] = ["{:.2f}".format(a_result.data["DSP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            if "LTD" in a_result.data:
+                baseDict["LTD"] = a_result.data["LTD"]
             quoteList.append(aDict)
             self.stkquote.updateQuote(quoteList)
-        if mesgtype == abxtoolkit.WATCH_TYPE.trade:
-            aQuoteDict = self.quoteDataDict.get(stkid)
+            baseList.append(baseDict)
+            self.stkquote.updateBaseQuote(baseList)
+        if a_result.mesgtype == abxtoolkit.WATCH_TYPE.trade:
+            aQuoteDict = self.quoteDataDict.get(a_result.stkid)
             if aQuoteDict == None:
                 aQuoteDict = {}
-                self.quoteDataDict[stkid] = aQuoteDict            
+                self.quoteDataDict[a_result.stkid] = aQuoteDict            
             quoteList = []
             aDict = {}
-            aDict["id"] = [stkid, DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
-            if "TT" in data:
-                aDict["TT"] = [sutil.formatTime(data["TT"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
-            if "TP" in data:
-                aDict["TP"] = ["{:.2f}".format(data["TP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
-                aQuoteDict["TP"] = data["TP"]
-                self._calcUpDown(stkid, aDict)
-            if "TV" in data:
-                aDict["TV"] = [str(data["TV"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            aDict["id"] = [a_result.stkid, DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            if "TT" in a_result.data:
+                aDict["TT"] = [sutil.formatTime(a_result.data["TT"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            if "TP" in a_result.data:
+                aDict["TP"] = ["{:.2f}".format(a_result.data["TP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+                aQuoteDict["TP"] = a_result.data["TP"]
+                self._calcUpDown(a_result.stkid, aDict)
+            if "TV" in a_result.data:
+                aDict["TV"] = [str(a_result.data["TV"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
             quoteList.append(aDict)
             self.stkquote.updateQuote(quoteList)
-        if mesgtype == abxtoolkit.WATCH_TYPE.others:
+        if a_result.mesgtype == abxtoolkit.WATCH_TYPE.others:
             quoteList = []
             aDict = {}
-            aDict["id"] = [stkid, DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
-            if "OP" in data:
-                aDict["OP"] = ["{:.2f}".format(data["OP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
-            if "HP" in data:
-                aDict["HP"] = ["{:.2f}".format(data["HP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
-            if "LP" in data:
-                aDict["LP"] = ["{:.2f}".format(data["LP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            aDict["id"] = [a_result.stkid, DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            if "OP" in a_result.data:
+                aDict["OP"] = ["{:.2f}".format(a_result.data["OP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            if "HP" in a_result.data:
+                aDict["HP"] = ["{:.2f}".format(a_result.data["HP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            if "LP" in a_result.data:
+                aDict["LP"] = ["{:.2f}".format(a_result.data["LP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
             quoteList.append(aDict)
             self.stkquote.updateQuote(quoteList)
-        if mesgtype == abxtoolkit.WATCH_TYPE.order_1:
+        if a_result.mesgtype == abxtoolkit.WATCH_TYPE.order_1:
             quoteList = []
             aDict = {}
-            aDict["id"] = [stkid, DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
-            if "BP" in data:
-                aDict["BP"] = ["{:.2f}".format(data["BP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
-            if "AP" in data:
-                aDict["AP"] = ["{:.2f}".format(data["AP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            aDict["id"] = [a_result.stkid, DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            if "BP" in a_result.data:
+                aDict["BP"] = ["{:.2f}".format(a_result.data["BP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            if "BV" in a_result.data:
+                aDict["BV"] = [str(a_result.data["BV"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            if "AP" in a_result.data:
+                aDict["AP"] = ["{:.2f}".format(a_result.data["AP"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]
+            if "AV" in a_result.data:
+                aDict["AV"] = [str(a_result.data["AV"]), DEFAULT_FGCOLOR, DEFAULT_BGCOLOR]            
             quoteList.append(aDict)
             self.stkquote.updateQuote(quoteList)
 
@@ -435,6 +484,10 @@ class SelfStkQuote(BoxLayout):
             fgColor = DEFAULT_FGCOLOR
         aDict["UD"] = ["{:.2f}".format(upDown), fgColor, DEFAULT_BGCOLOR]
         aDict["TP"] = ["{:.2f}".format(tp), fgColor, DEFAULT_BGCOLOR]
+
+    def closeStkQuote(self):
+
+        abxtoolkit.remove_all_listener()
         
     def doQuote(self):
         

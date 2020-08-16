@@ -258,11 +258,11 @@ class STradeCost(BoxLayout):
     def addRecordEvent(self, instance):
         ruleName = self.add_scsLayout.rule_id.text
         if ruleName == None or ruleName == "":
-            self.app.showMsgView(CONSTS.ERR_RULE_IS_SPACE)
+            self.app.showErrorView(True, CONSTS.ERR_RULE_IS_SPACE)
             return
         costStr = self.add_scsLayout.cost_id.text
         if costStr == None or costStr == "":
-            self.app.showMsgView(CONSTS.ERR_COST_IS_SPACE)
+            self.app.showErrorView(True, CONSTS.ERR_COST_IS_SPACE)
             return
         dflag = False
         try:
@@ -270,7 +270,7 @@ class STradeCost(BoxLayout):
         except:
             dflag = True
         if dflag:
-            self.app.showMsgView(CONSTS.ERR_COST_MUST_NUMBER)
+            self.app.showErrorView(True, CONSTS.ERR_COST_MUST_NUMBER)
             return
         dflag = False
         for akey in self.def_ids.keys():
@@ -279,7 +279,7 @@ class STradeCost(BoxLayout):
                 dflag = True
                 break
         if dflag:
-            self.app.showMsgView(CONSTS.ERR_RULE_DUPLICATED)
+            self.app.showErrorView(True, CONSTS.ERR_RULE_DUPLICATED)
             return
         
         tradeUnit = self.add_scsLayout.tradeunit_id.text
@@ -316,7 +316,7 @@ class STradeCost(BoxLayout):
     def updateRecordEvent(self, instance):
         costStr = self.update_scsLayout.cost_id.text
         if costStr == None or costStr == "":
-            self.app.showMsgView(CONSTS.ERR_COST_IS_SPACE)
+            self.app.showErrorView(True, CONSTS.ERR_COST_IS_SPACE)
             return
         dflag = False
         try:
@@ -324,7 +324,7 @@ class STradeCost(BoxLayout):
         except:
             dflag = True
         if dflag:
-            self.app.showMsgView(CONSTS.ERR_COST_MUST_NUMBER)
+            self.app.showErrorView(True, CONSTS.ERR_COST_MUST_NUMBER)
             return
         tradeUnit = self.update_scsLayout.tradeunit_id.text
         rowList = self.def_ids.get(instance.extra_info)

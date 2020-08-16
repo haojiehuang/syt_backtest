@@ -237,7 +237,7 @@ class SStrategy(BoxLayout):
     def addRecordEvent(self, instance):
         strategyName = self.add_scsLayout.strategy_id.text
         if strategyName == None or strategyName == "":
-            self.app.showMsgView(CONSTS.ERR_STRATEGY_IS_SPACE)
+            self.app.showErrorView(True, CONSTS.ERR_STRATEGY_IS_SPACE)
             return
         
         dflag = False
@@ -247,7 +247,7 @@ class SStrategy(BoxLayout):
                 dflag = True
                 break
         if dflag:
-            self.app.showMsgView(CONSTS.ERR_STRATEGY_DUPLICATED)
+            self.app.showErrorView(True, CONSTS.ERR_STRATEGY_DUPLICATED)
             return
         
         fileName = self.add_scsLayout.filename_id.text
@@ -287,7 +287,7 @@ class SStrategy(BoxLayout):
         rowIndex = instance.extra_info
         strategyName = self.update_scsLayout.strategy_id.text
         if strategyName == None or strategyName == "":
-            self.app.showMsgView(CONSTS.ERR_STRATEGY_IS_SPACE)
+            self.app.showErrorView(True, CONSTS.ERR_STRATEGY_IS_SPACE)
             return
         fileName = self.update_scsLayout.filename_id.text
         dflag = False
@@ -299,7 +299,7 @@ class SStrategy(BoxLayout):
                 dflag = True
                 break
         if dflag:
-            self.app.showMsgView(CONSTS.ERR_STRATEGY_DUPLICATED)
+            self.app.showErrorView(True, CONSTS.ERR_STRATEGY_DUPLICATED)
             return
         rowList = self.def_ids.get(rowIndex)
         rowList[1].text = strategyName

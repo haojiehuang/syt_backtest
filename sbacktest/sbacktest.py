@@ -52,7 +52,7 @@ class SBacktest(FloatLayout):
                 errNo = CONSTS.ERR_DECODE_ERROR
         
         if errNo != "0":
-            self.app.showMsgView(errNo)
+            self.app.showErrorView(True, errNo)
         
         if errNo == "0":
             self.analyze(lineList)
@@ -92,7 +92,7 @@ class SBacktest(FloatLayout):
             
     def analyze(self, lineList):
         if len(lineList) == 0:
-            self.app.showMsgView(CONSTS.ERR_NO_DATA)
+            self.app.showErrorView(True, CONSTS.ERR_NO_DATA)
             return
 
         index = None

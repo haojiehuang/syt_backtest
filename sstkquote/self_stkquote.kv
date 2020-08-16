@@ -6,7 +6,6 @@
     body_layout: body_layout.__self__
     content_layout: content_layout.__self__
     selfgroup_id: selfgroup_id
-    stksetting_id: stksetting_id
     page_id: page_id
     totalpage_id: totalpage_id
     prepage_id: prepage_id
@@ -43,23 +42,32 @@
             id: selfgroup_id
             multiline: False
             text: ""
-            size_hint: (.24, 1)
+            size_hint: (.2, 1)
             halign: "center"
             valign: "middle"
 
         BoxLayout:
-            size_hint: (.02, 1)
+            size_hint: (.01, 1)
             
         SButton:
-            id: stksetting_id
             text: "自選設定"
             size_hint: (.11, 1)
             halign: "center"
             valign: "middle"
             on_release: root._stkSetting()
+        
+        BoxLayout:
+            size_hint: (.01, 1)
+            
+        SButton:
+            text: "欄位排序"
+            size_hint: (.11, 1)
+            halign: "center"
+            valign: "middle"
+            on_release: root._fieldsSetting()
 
         BoxLayout:
-            size_hint: (.02, 1)
+            size_hint: (.01, 1)
 
         BoxLayout:
             size_hint: (.12, 1)
@@ -90,7 +98,7 @@
                 size_hint: (.04, 1)
         
         BoxLayout:
-            size_hint: (.30, 1)
+            size_hint: (.26, 1)
             orientation: "horizontal"
 
             SButton:

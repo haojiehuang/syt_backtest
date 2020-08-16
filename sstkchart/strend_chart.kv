@@ -1,0 +1,132 @@
+#:kivy 1.10.0
+
+#:import hex kivy.utils.get_color_from_hex
+
+<STrendChart>:
+    body_layout: body_layout.__self__
+    stkIdAndName: stkIdAndName
+    lastTradeDate_id: lastTradeDate_id
+    time_id: time_id
+    price_id: price_id
+    volume_id: volume_id
+    amt_id: amt_id
+    upDown_id: upDown_id
+    closebtn_id: closebtn_id
+    
+    size_hint: (1, 1)
+    padding: 2
+    canvas.before:
+        Color:
+            rgba: hex("#00142D")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
+    SSysBoxLayout:
+        id: head_layout
+        size_hint: (1, .06)
+        pos_hint: {'x':0, 'y':0.94}
+        orientation: 'horizontal'
+        
+        SSysBoxLayout:
+            size_hint: (.01, 1)
+            
+        SLabel:
+            id: stkIdAndName
+            text: ""
+            color: hex("#FFFFFF")
+            size_hint: (.30, 1)
+        
+        SSysBoxLayout:
+            size_hint: (.45, 1)
+        
+        SLabel:
+            text: "最後交易日:"
+            color: hex("#FFFFFF")
+            size_hint: (.12, 1)
+        
+        SLabel:
+            id: lastTradeDate_id
+            text: ""
+            color: hex("#FFFFFF")
+            size_hint: (.12, 1)
+            
+    SSysBoxLayout:
+        id: head_layout
+        size_hint: (1, .06)
+        pos_hint: {'x':0, 'y':0.88}
+        orientation: 'horizontal'
+        
+        SSysBoxLayout:
+            size_hint: (.02, 1)
+        
+        SLabel:
+            text: " 時間:"
+            color: hex("#FFFFFF")
+            size_hint: (.07, 1)
+        
+        SLabel:
+            id: time_id
+            text: ""
+            color: hex("#FFFFFF")
+            size_hint: (.08, 1)
+
+        SLabel:
+            text: " 價:"
+            color: hex("#FFFFFF")
+            size_hint: (.05, 1)
+        
+        SLabel:
+            id: price_id
+            text: ""
+            size_hint: (.10, 1)
+
+        SLabel:
+            text: " 量:"
+            color: hex("#FFFFFF")
+            size_hint: (.05, 1)
+        
+        SLabel:
+            id: volume_id
+            text: ""
+            size_hint: (.08, 1)
+        
+        SLabel:
+            text: " 金額:"
+            color: hex("#FFFFFF")
+            size_hint: (.07, 1)
+        
+        SLabel:
+            id: amt_id
+            text: ""
+            size_hint: (.14, 1)
+        
+        SLabel:
+            text: " 漲跌:"
+            color: hex("#FFFFFF")
+            size_hint: (.07, 1)
+        
+        SLabel:
+            id: upDown_id
+            text: ""
+            size_hint: (.08, 1)
+        
+        SSysBoxLayout:
+            size_hint: (.19, 1)
+
+    FloatLayout:
+        id: body_layout
+        size_hint: (1, .82)
+        pos_hint: {'x':0, 'y':.06}
+    
+    SSysBoxLayout:
+        size_hint: (1, .06)
+        pos_hint: {'x':0, 'y':0}
+        orientation: 'horizontal'
+   
+        SButton:
+            id: closebtn_id
+            text: '關閉'
+            size_hint: (1, 1)
+            halign: 'center'
+            valign: 'middle'

@@ -85,7 +85,7 @@ class SSelectStock(BoxLayout):
             errCode = self.result.get("ErrCode")
             if errCode != 0:
                 errDesc = self.result.get("ErrDesc")
-                self.app.showMixedMsg(errCode, errDesc)
+                self.app.showErrorView(False, errCode, errDesc)
             else:
                 self.finishedSelectStock()
 

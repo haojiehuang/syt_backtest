@@ -20,12 +20,16 @@ Config.set('input', 'mouse', 'mouse,multitouch_on_demand') #消除點擊滑鼠�
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.scrollview import ScrollView
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
+from kivy.utils import get_color_from_hex as colorHex
 
 from sunitemenu import SUniteMenu
-from selements import SLabel, SButton
+from selements import SLabel, SButton, STableGridLayout
 from kivy.core.window import Window
+
 import sconsts as CONSTS
 
 class SUniteApp(App):
@@ -50,75 +54,51 @@ class SUniteApp(App):
     def closeWindows(self):
         self.get_running_app().stop()
 
-    def showMsgView(self, msgCode):
-        msgCodeDict = self.confDict.get(CONSTS.MSG_CODE_DICT)
-        msgText = msgCodeDict.get(msgCode)
-        if msgText == None:
-            msgText = "Unknow error code->" + str(msgCode)
+    def showErrorView(self, isGetMsgDesc, msgCode, msgDesc=None):
         contentLayout = BoxLayout()
         contentLayout.orientation = "vertical"
-        contentLayout.size_hint = (1, 1)
-        from selements import SLabel
-        contentLabel = SLabel(text=msgText, size_hint=(1, .8))
-        contentLabel.halign = "center"
-        contentLayout.add_widget(contentLabel)
-
+        contentLayout.size_hint = (1, 1)        
+        if isGetMsgDesc == True:
+            msgCodeDict = self.confDict.get(CONSTS.MSG_CODE_DICT)
+            msgText = msgCodeDict.get(msgCode)
+            if msgText == None:
+                msgText = "Unknow error code->" + str(msgCode)
+            else:
+                msgText = str(msgCode) + "->" + msgText
+            if msgDesc == None or msgDesc == "":
+                contentLabel = SLabel(text=msgText, size_hint=(1, .8))
+                contentLabel.halign = "center"
+                contentLayout.add_widget(contentLabel)
+            else:
+                titleLabel = SLabel(text=msgText, size_hint=(1, .2))
+                titleLabel.halign = "center"
+                contentLayout.add_widget(titleLabel)            
+                slview = ScrollView(size_hint=(1, .6))
+                contentLayout.add_widget(slview)
+                explainLayout = STableGridLayout(cols=1, spacing=1, size_hint_y=None)
+                explainLayout.bind(minimum_height=explainLayout.setter('height'))
+                for aStr in msgDesc:
+                    explainLabel = SLabel(text=aStr, size_hint=(1, None), height=20)
+                    explainLabel.halign = "center"
+                    explainLabel.color = colorHex("#000000")
+                    explainLabel.font_name = CONSTS.FONT_NAME
+                    explainLayout.add_widget(explainLabel)
+                slview.add_widget(explainLayout)                
+        else:
+            msgText = str(msgCode) + "->" + msgDesc
+            contentLabel = SLabel(text=msgText, size_hint=(1, .8))
+            contentLabel.halign = "center"
+            contentLayout.add_widget(contentLabel)
+        
         sysConfDict = self.confDict.get(CONSTS.SYS_CONF_DICT)
 
-        from selements import SButton
         contentBtn = SButton(text=sysConfDict.get("MSG_CONFIRM"), size_hint=(1, .2))
         contentLayout.add_widget(contentBtn)    
         popup = Popup(title=sysConfDict.get("MSG_TITLE"), content=contentLayout,
-                size_hint=(None, None), size=(200, 200), auto_dismiss=False)
+                      size_hint=(None, None), size=(200, 200), auto_dismiss=False)
         contentBtn.bind(on_press=popup.dismiss)
         popup.title_font = CONSTS.FONT_NAME
         popup.open()
-    
-    def showMixedMsg(self, errCode, errDesc):
-        msgText = str(errCode) + "->" + errDesc
-        contentLayout = BoxLayout()
-        contentLayout.orientation = "vertical"
-        contentLayout.size_hint = (1, 1)
-        from selements import SLabel
-        contentLabel = SLabel(text=msgText, size_hint=(1, .8))
-        contentLabel.halign = "center"
-        contentLayout.add_widget(contentLabel)
-
-        sysConfDict = self.confDict.get(CONSTS.SYS_CONF_DICT)
-
-        from selements import SButton
-        contentBtn = SButton(text=sysConfDict.get("MSG_CONFIRM"), size_hint=(1, .2))
-        contentLayout.add_widget(contentBtn)    
-        popup = Popup(title=sysConfDict.get("MSG_TITLE"), content=contentLayout,
-                size_hint=(None, None), size=(200, 200), auto_dismiss=False)
-        contentBtn.bind(on_press=popup.dismiss)
-        popup.title_font = CONSTS.FONT_NAME
-        popup.open()
-    
-    def showErrorMsg(self, msgCode, errDesc):
-        msgCodeDict = self.confDict.get(CONSTS.MSG_CODE_DICT)
-        msgText = msgCodeDict.get(msgCode)
-        if msgText == None:
-            msgText = "Unknow error code->" + str(msgCode)
-        msgText += "->" + errDesc
-        contentLayout = BoxLayout()
-        contentLayout.orientation = "vertical"
-        contentLayout.size_hint = (1, 1)
-        from selements import SLabel
-        contentLabel = SLabel(text=msgText, size_hint=(1, .8))
-        contentLabel.halign = "center"
-        contentLayout.add_widget(contentLabel)
-
-        sysConfDict = self.confDict.get(CONSTS.SYS_CONF_DICT)
-
-        from selements import SButton
-        contentBtn = SButton(text=sysConfDict.get("MSG_CONFIRM"), size_hint=(1, .2))
-        contentLayout.add_widget(contentBtn)    
-        popup = Popup(title=sysConfDict.get("MSG_TITLE"), content=contentLayout,
-                size_hint=(None, None), size=(200, 200), auto_dismiss=False)
-        contentBtn.bind(on_press=popup.dismiss)
-        popup.title_font = CONSTS.FONT_NAME
-        popup.open()    
         
 if __name__ == '__main__':
     SUniteApp().run()

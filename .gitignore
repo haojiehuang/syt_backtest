@@ -262,3 +262,11 @@ test/test_module.py
 test/test_popup.py
 test/testspinner.py
 test/testweekday.py
+abxtoolkit/abxcontain/abxjsonkey.py
+abxtoolkit/abxcontain/__pycache__/abxjsonkey.cpython-36.pyc
+abxtoolkit/abxcontain/__pycache__/abxjsonkey.cpython-37.pyc
+sunite_example/sunite_on_off_listener.py
+sunite_example/sunite_remove_listener.py
+sstkquote/__pycache__/self_fieldsetting.cpython-37.pyc
+sunite_example/sunite_subscribe_min.py
+sunite_example/sunite_unsubscribe_quote.py
