@@ -21,6 +21,7 @@ from kivy.uix.dropdown import DropDown
 from kivy.properties import ObjectProperty
 
 import sconsts as CONSTS
+from sgw_popup import SGwPopup
 from selements import SLabel, SInfoButton, STextInput, SPopup
 from stkquote import StkQuote
 from self_stksetting import SelfStkSetting
@@ -138,7 +139,7 @@ class SelfStkQuote(BoxLayout):
 
     def _stkSetting(self):
         if len(self.app.stkNameDict) == 0:
-            self.doQueryStktbl()
+            self._doQueryStktbl()
         else:
             refParam = {}
             refParam[CONSTS.S_APP] = self.app
@@ -166,48 +167,28 @@ class SelfStkQuote(BoxLayout):
         self.self_fieldsetting_popup.title_font = CONSTS.FONT_NAME
         self.self_fieldsetting_popup.open()
 
-    def doQueryStktbl(self):
-        contentLayout = BoxLayout()
-        contentLayout.orientation = "vertical"
-        contentLayout.size_hint = (1, 1)
-        contentLabel = SLabel(text="  股名檔下載中...", size_hint=(1, .8))
-        contentLayout.add_widget(contentLabel)
-        
+    def _doQueryStktbl(self):
+
+        gwParam = {}
+        gwParam['PinyinType'] = "1"
+        gwParam['LanguageID'] = "T"
+        gwParam['ExchangeID'] = "TW"
+
         sysConfDict = self.app.confDict.get(CONSTS.SYS_CONF_DICT)
         
-        self.result = None
-        self.ss_popup = SPopup(title=sysConfDict.get("MSG_TITLE"), content=contentLayout,
-                size_hint=(None, None), size=(160, 120), auto_dismiss=False)
-        self.ss_popup.title_font = CONSTS.FONT_NAME
-        self.ss_popup.bind(on_open=self.ss_open)
-        Clock.schedule_once(self.doQueryStktblStart)
-    
-    def doQueryStktblStart(self, instance):
-        self.ss_popup.open()
-        threading.Thread(target=self.toolkitQueryStktbl).start()
-        
-    def toolkitQueryStktbl(self):
-        qdict = {}
-        qdict['PinyinType'] = "1"
-        qdict['LanguageID'] = "T"
-        qdict['ExchangeID'] = "TW"
-        self.result = abxtoolkit.query_stktbl1(qdict)
-        
-    def doQueryStktbl_check(self, dt):
-        if self.result != None:
-            self.ss_popup.dismiss()
-            self.event.cancel()            
-            errCode = self.result.get("ErrCode")
-            if errCode != 0:
-                errDesc = self.result.get("ErrDesc")
-                self.app.showErrorView(False, errCode, errDesc)
-            else:
-                self.finishedQueryStktbl()
+        refParam = {}
+        refParam["CONSTS.S_APP"] = self.app
+        refParam["TitleMsg"] = sysConfDict.get("MSG_TITLE")
+        refParam["InfoMsg"] = "  股名檔下載中..."
+        refParam["PopupSize"] = (160, 120)
+        refParam["GwParam"] = gwParam
+        refParam["GwFunc"] = abxtoolkit.query_stktbl1
+        refParam["ResultFunc"] = self._finishedQueryStktbl
 
-    def ss_open(self, instance):
-        self.event = Clock.schedule_interval(self.doQueryStktbl_check, .0005)
+        sgwPopup = SGwPopup(refParam)
+        sgwPopup.processEvent()
 
-    def finishedQueryStktbl(self):
+    def _finishedQueryStktbl(self, gwResult):
         filePath = os.path.join(os.path.dirname(__file__), ".." + os.sep + "rowdata" + os.sep + "stktbl1TTW.dat")
         alist = sutil.getListFromFile(filePath)
         alist.pop(0)
@@ -254,7 +235,8 @@ class SelfStkQuote(BoxLayout):
         if len(stkListStr) != 0:
             stkListStr = stkListStr[0:-1]
         self.selfDict[selfgroup_index][2] = stkListStr
-        self.stkquote.clearQuote() #變更自選組合，先清掉之前的畫面 
+        self.stkquote.clearQuote() #變更自選組合，先清掉之前的畫面
+        self._calcPageInfo()
         self.subscribeQuote() #重新訂閱股票
 
     def _changeFields(self, instance):
@@ -513,6 +495,7 @@ class SelfStkQuote(BoxLayout):
             endIdx = self.page_num * NUM_PER_PAGE
             if endIdx > len(self.selfStkList):
                 endIdx = len(self.selfStkList)
+            subscribeList = []
             quote_condition = []
             for idx in range(startIdx, endIdx):
                 stkId = self.selfStkList[idx]
@@ -522,5 +505,10 @@ class SelfStkQuote(BoxLayout):
                 a_sub_stock.stockID = stkId
                 a_sub_stock.quoteID = ['stkBase', 'stkInfo', 'order_1', 'trade', 'others']
                 quote_condition.append(a_sub_stock)
+                subscribeList.append(stkId)
+
+            self.stkquote.setStkList(self.selfStkList)
+            self.stkquote.setSubscribeList(subscribeList)
+            self.stkquote.setGroupName(self.selfgroup_id.text)
 
         r = abxtoolkit.subscribe_quote(quote_condition)

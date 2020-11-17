@@ -13,6 +13,7 @@ from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
 from kivy.clock import Clock
 from kivy.utils import get_color_from_hex as colorHex
+import time
 import threading
 import sys
 import os
@@ -47,11 +48,12 @@ class MenuButton(Button):
 
     isMouseInFlag = False
     suniteMenu = None
+    menuLayout = None
         
     def __init__(self, suniteMenu, **kwargs):
         super(MenuButton, self).__init__(**kwargs)
-        Window.bind(mouse_pos=self.on_mouse_pos)
         self.suniteMenu = suniteMenu
+        Window.bind(mouse_pos=self.on_mouse_pos)
         
     def on_mouse_pos(self, *args):
         if not self.get_root_window():
@@ -65,16 +67,20 @@ class MenuButton(Button):
                 self.color = colorHex("#0000FF")
                 self.suniteMenu.removeMenu()
                 if self.text == "用戶中心":
-                    self.suniteMenu.userMenu(self)
+                    self.menuLayout = self.suniteMenu.userMenu(self)
                 elif self.text == "交易執行":
-                    self.suniteMenu.executeMenu(self)
+                    self.menuLayout = self.suniteMenu.executeMenu(self)
                 elif self.text == "交易分析":
-                    self.suniteMenu.analyzeMenu(self)
+                    self.menuLayout = self.suniteMenu.analyzeMenu(self)
         else:
             if self.isMouseInFlag == True:
                 self.isMouseInFlag = False
                 self.color = colorHex("#000000")
-
+                if self.menuLayout != None:
+                    layoutWidth_posX = self.menuLayout.pos[0] + self.menuLayout.size[0]
+                    if pos[1] > self.pos[1] or pos[1] < self.menuLayout.pos[1] or pos[0] < self.pos[0] or pos[0] > layoutWidth_posX:
+                        self.suniteMenu.removeMenu()
+                
 class SubMenuButton(Button):
 
     isMouseInFlag = False
@@ -98,7 +104,40 @@ class SubMenuButton(Button):
                 self.isMouseInFlag = False
                 self.color = colorHex("#000000")
 
+class MenuLayout(BoxLayout):
+    
+    isOpenFlag = False
+    isMouseInFlag = False
+    suniteMenu = None
+    layoutHeight = 0
+    
+    def __init__(self, suniteMenu, **kwargs):
+        super(MenuLayout, self).__init__(**kwargs)
+        self.isOpenFlag = True
+        self.suniteMenu = suniteMenu
+        self.layoutHeight = self.size[1]
+        Window.bind(mouse_pos=self.on_mouse_pos)
 
+    def on_mouse_pos(self, *args):
+        if not self.get_root_window():
+            return
+        pos = args[1]
+        if self.collide_point(*self.to_widget(*pos)):
+            if self.isMouseInFlag == True:
+                return
+            else:
+                self.isOpenFlag = False
+                self.isMouseInFlag = True
+        else:
+            if self.isOpenFlag == True:
+                return
+            if self.isMouseInFlag == True:
+                widthRange = self.pos[0] + self.size[0]
+                heightRange = self.pos[1] + self.layoutHeight
+                if pos[0] < self.pos[0] or pos[0] > widthRange or pos[1] > heightRange or pos[1] < self.pos[1]:
+                    self.isMouseInFlag = False
+                    self.suniteMenu.removeMenu()
+        
 class SUniteMenu(FloatLayout):
     
     menuId = ObjectProperty(None)
@@ -201,7 +240,7 @@ class SUniteMenu(FloatLayout):
         width = instance.size[0] + 10
         x1 = instance.pos[0]
         y1 = instance.pos[1] - 63
-        self.menuLayout = BoxLayout(size_hint=(None, None), size=(width, instance.size[1]), pos=[x1, y1], orientation="vertical")
+        self.menuLayout = MenuLayout(suniteMenu = self, size_hint=(None, None), size=(width, instance.size[1]), pos=[x1, y1], orientation="vertical")
         
         self.menuLayout.add_widget(BoxLayout(size_hint=(1, None), height=1))
         btn = SubMenuButton(size_hint=(1, None), height=30, text="用戶註冊")
@@ -216,6 +255,9 @@ class SUniteMenu(FloatLayout):
         self.menuLayout.add_widget(BoxLayout(size_hint=(1, None), height=1))
     
         self.add_widget(self.menuLayout)
+        self.menuLayout.layoutHeight = 63
+        
+        return self.menuLayout
 
     def registerUser(self, instance):
         self.removeMenu()
@@ -239,7 +281,7 @@ class SUniteMenu(FloatLayout):
         width = instance.size[0] + 40
         x1 = instance.pos[0]
         y1 = instance.pos[1] - 125
-        self.menuLayout = BoxLayout(size_hint=(None, None), size=(width, instance.size[1]), pos=[x1, y1], orientation="vertical")
+        self.menuLayout = MenuLayout(suniteMenu = self, size_hint=(None, None), size=(width, instance.size[1]), pos=[x1, y1], orientation="vertical")
         
         self.menuLayout.add_widget(BoxLayout(size_hint=(1, None), height=1))
         btn = SubMenuButton(size_hint=(1, None), height=30, text="歷史報價下載")
@@ -264,6 +306,9 @@ class SUniteMenu(FloatLayout):
         self.menuLayout.add_widget(BoxLayout(size_hint=(1, None), height=1))
 
         self.add_widget(self.menuLayout)
+        self.menuLayout.layoutHeight = 125
+        
+        return self.menuLayout
 
     def downloadProcess(self, instance):
         self.removeMenu()
@@ -413,7 +458,7 @@ class SUniteMenu(FloatLayout):
         width = instance.size[0] + 10
         x1 = instance.pos[0]
         y1 = instance.pos[1] - 94
-        self.menuLayout = BoxLayout(size_hint=(None, None), size=(width, instance.size[1]), pos=[x1, y1], orientation="vertical")
+        self.menuLayout = MenuLayout(suniteMenu = self, size_hint=(None, None), size=(width, instance.size[1]), pos=[x1, y1], orientation="vertical")
 
         self.menuLayout.add_widget(BoxLayout(size_hint=(1, None), height=1))
         btn = SubMenuButton(size_hint=(1,None), height=30, text="回測")
@@ -433,6 +478,9 @@ class SUniteMenu(FloatLayout):
         self.menuLayout.add_widget(BoxLayout(size_hint=(1, None), height=1))
 
         self.add_widget(self.menuLayout)
+        self.menuLayout.layoutHeight = 94
+
+        return self.menuLayout
 
     def sselectFile(self, instance):
         self.removeMenu()

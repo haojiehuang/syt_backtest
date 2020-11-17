@@ -22,6 +22,7 @@ from kivy.utils import get_color_from_hex as colorHex
 import sutil
 import sdate_utils
 import sconsts as CONSTS
+from sgw_popup import SGwPopup
 from selements import SButton, SLabel, STextInput, SPopup
 from selements import STableBoxLayout, STableScrollView
 from sdatepicker import SDatePicker
@@ -158,21 +159,21 @@ class SDownload(BoxLayout):
         else:
             useridTxt = "2|" + useridTxt
         
-        self.downQuoteDict = {}
-        self.downQuoteDict["Host"] = self.userConf.get("DOWNLOAD_URL").strip()
-        self.downQuoteDict["Port"] = int(self.userConf.get("DOWNLOAD_PORT").strip())
-        self.downQuoteDict["User"] = useridTxt
-        self.downQuoteDict["Password"] = self.app.pwd
-        self.downQuoteDict["ProductId"] = int(self.userConf.get("PRODUCT_ID").strip())
-        self.downQuoteDict["UserType"] = int(self.userConf.get("USER_TYPE").strip())
-        self.downQuoteDict["LoginType"] = int(self.userConf.get("TRADE_LOGIN_TYPE").strip())
+        gwParam = {}
+        gwParam["Host"] = self.userConf.get("DOWNLOAD_URL").strip()
+        gwParam["Port"] = int(self.userConf.get("DOWNLOAD_PORT").strip())
+        gwParam["User"] = useridTxt
+        gwParam["Password"] = self.app.pwd
+        gwParam["ProductId"] = int(self.userConf.get("PRODUCT_ID").strip())
+        gwParam["UserType"] = int(self.userConf.get("USER_TYPE").strip())
+        gwParam["LoginType"] = int(self.userConf.get("TRADE_LOGIN_TYPE").strip())
         exchange = "ZZ"
-        self.downQuoteDict["StockFullID"] = exchange + stockidTxt
-        self.downQuoteDict["DataType"] = self.dataType
+        gwParam["StockFullID"] = exchange + stockidTxt
+        gwParam["DataType"] = self.dataType
         startDate = self.startdate_id.text
         if self.dataType == "m" or self.dataType == "w":
             startDate = "0"
-        self.downQuoteDict["StartDate"] = startDate
+        gwParam["StartDate"] = startDate
         totalDaysStr = self.totaldays_id.text
         if totalDaysStr == "全部":
             totalDays = "0"
@@ -182,49 +183,26 @@ class SDownload(BoxLayout):
             if int(totalDays) > 5:
                 totalDays = "5"
                 self.totaldays_id.text = "5"
-        self.downQuoteDict["DataDays"] = totalDays
-        
-        self.downloadEvent()
-
-    def downloadEvent(self):
-        contentLayout = BoxLayout()
-        contentLayout.orientation = "vertical"
-        contentLayout.size_hint = (1, 1)
-        contentLabel = SLabel(text="資料下載中...", size_hint=(1, .8))
-        contentLayout.add_widget(contentLabel)
+        gwParam["DataDays"] = totalDays
         
         sysConfDict = self.app.confDict.get(CONSTS.SYS_CONF_DICT)
         
-        self.result = None
-        self.dl_popup = Popup(title=sysConfDict.get("MSG_TITLE"), content=contentLayout,
-                size_hint=(None, None), size=(160, 120), auto_dismiss=False)
-        self.dl_popup.title_font = CONSTS.FONT_NAME
-        self.dl_popup.bind(on_open=self.dl_open)
-        Clock.schedule_once(self.downloadStart)
+        refParam = {}
+        refParam["CONSTS.S_APP"] = self.app
+        refParam["TitleMsg"] = sysConfDict.get("MSG_TITLE")
+        refParam["InfoMsg"] = "  資料下載中..."
+        refParam["PopupSize"] = (160, 120)
+        refParam["GwParam"] = gwParam
+        refParam["GwFunc"] = abxtoolkit.request_rowdata
+        refParam["ResultFunc"] = self._finishedDownload
 
-    def downloadStart(self, instance):
-        self.dl_popup.open()
-        threading.Thread(target=self.toolkitDownload).start()
+        sgwPopup = SGwPopup(refParam)
+        sgwPopup.processEvent()
+
+    def _finishedDownload(self, gwResult):
+        fileName = gwResult.get("FileName")
+        fileLen = gwResult.get("FileLen")
         
-    def toolkitDownload(self):
-        self.result = abxtoolkit.request_rowdata(self.downQuoteDict)
-        
-    def download_check(self, dt):
-        if self.result != None:      
-            errCode = self.result.get("ErrCode")
-            if errCode != 0:
-                errDesc = self.result.get("ErrDesc")
-                self.app.showErrorView(False, errCode, errDesc)
-            else:
-                self.finishedPopup(self.result.get("FileName"), self.result.get("FileLen"))
-            
-            self.dl_popup.dismiss()
-            self.event.cancel()                  
-
-    def dl_open(self, instance):
-        self.event = Clock.schedule_interval(self.download_check, .0005)
-
-    def finishedPopup(self, fileName, fileLen):
         content = BoxLayout(size_hint=(1, 1), orientation="vertical")
         content.add_widget(BoxLayout(size_hint=(1, .05)))
         

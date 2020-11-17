@@ -309,3 +309,6 @@ test/test_kline.py
 test/test_volbar.kv
 test/test_volbar.py
 test/testdraw.py
+sbase/__pycache__/sgw_popup.cpython-37.pyc
+sstkchart/__pycache__/stk_group_view.cpython-37.pyc
+sstkchart/__pycache__/strend_group.cpython-37.pyc

@@ -30,6 +30,7 @@ class SMixedChart():
         
         self.layout = paramDict.get("Layout")
 
+        self.isPriceMA = paramDict.get("IsPriceMA")
         self.isDrawRect = paramDict.get("IsDrawRect") #是否畫外框
         if self.isDrawRect == None:
             self.isDrawRect = False
@@ -186,7 +187,13 @@ class SMixedChart():
                     aDict = {}
                     aDict["TD"] = aDateTime
                     aDict["VOL"] = float(aList[aIdx])
-                    aDict["CP"] = self.klineDict.get(aDateTime).get("CP")
+                    # 1001-Begin: 20201022調整，因應數據庫資料異常
+                    #aDict["CP"] = self.klineDict.get(aDateTime).get("CP")
+                    if self.klineDict.get(aDateTime) != None:
+                        aDict["CP"] = self.klineDict.get(aDateTime).get("CP")
+                    else:
+                        aDict["CP"] = 0
+                    # 1001-End.
                     dataList[tmpIdx].append(aDict)
                 else:
                     dataList[tmpIdx].append({"TD":aDateTime,"Value":float(aList[aIdx])})

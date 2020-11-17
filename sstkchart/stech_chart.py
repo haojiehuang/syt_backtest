@@ -66,7 +66,7 @@ class STechChart(FloatLayout):
     priceMixedChart = ObjectProperty(None)
     secMixedChart = ObjectProperty(None)
     formulaMapping = ObjectProperty(None)
-    priceFormulaId = 8001000
+    priceFormulaId = ObjectProperty(None)
     priceInfoObjDict = ObjectProperty(None)
     mixedChartInfoObjDict = ObjectProperty(None)
     currentPage = 1
@@ -105,6 +105,7 @@ class STechChart(FloatLayout):
         self.shift_bottom = int(techChartDict.get("SHIFT_BOTTOM")) #繪圖下方位移距離
         self.shift_gap = int(techChartDict.get("SHIFT_GAP")) #兩圖形之間距
         self.recordCount = int(techChartDict.get("RECORD_COUNT")) #下載筆數
+        self.priceFormulaId = int(techChartDict.get("PRICE_FORMULA_ID")) #價格MA公式代碼
         
         self.next_id.disabled = True
         self.smaller_id.disabled = True
@@ -141,6 +142,7 @@ class STechChart(FloatLayout):
         priceRefParam = {}
         for aKey in refParam.keys():
             priceRefParam[aKey] = refParam.get(aKey)
+        priceRefParam["IsPriceMA"] = True
         priceRefParam["InfoFunc"] = self._showPriceInfo #顯示訊息之函式
         priceRefParam["IsDrawRect"] = False #是否畫外框
         priceRefParam["IsDrawXCordLine"] = False #是否顯示X軸直線
@@ -157,6 +159,7 @@ class STechChart(FloatLayout):
         secRefParam = {}
         for aKey in refParam.keys():
             secRefParam[aKey] = refParam.get(aKey)
+        secRefParam["IsPriceMA"] = False
         secRefParam["InfoFunc"] = self._showMixedChartInfo #顯示訊息之函式
         secRefParam["IsDrawRect"] = True #是否畫外框
         secRefParam["IsDrawXCordLine"] = True #是否顯示X軸直線
@@ -270,9 +273,13 @@ class STechChart(FloatLayout):
         self.previous_id.disabled = False
         self.next_id.disabled = True
         refParam = {}
+        refParam["TickWide"] = self.tickWide
+        self._calcDispNum()
+        refParam["DispNum"] = self.dispNum        
         refParam["CurrentPage"] = self.currentPage
         refParam["DataType"] = self.klineDataType_index
         refParam["ExtremeValue"] = None
+        self._recharting(refParam)        
         
         self.klineChart.clearData()
         self.klineChart.changeDrawInfo(refParam)
@@ -431,13 +438,13 @@ class STechChart(FloatLayout):
         
     def _calcDrawInfo(self):
         kline_width = self.size[0] - self.shift_right
-        draw_Height = self.size[1] * .78 - self.shift_bottom - self.shift_gap
-        kline_height = draw_Height * .75
+        draw_Height = self.size[1] * .84 - self.shift_bottom - self.shift_gap
+        kline_height = draw_Height * .70       
         secChart_height = draw_Height - kline_height
         kline_pos_x = self.pos[0]
-        kline_pos_y = self.pos[1] + self.size[1] * .06 + self.shift_bottom + secChart_height + self.shift_gap
+        kline_pos_y = self.pos[1] + self.shift_bottom + secChart_height + self.shift_gap
         secChart_pos_x = self.pos[0]
-        secChart_pos_y = self.pos[1] + self.size[1] * .06 + self.shift_bottom
+        secChart_pos_y = self.pos[1] + self.shift_bottom
         refParam = {}
         refParam["kline_pos"] = [kline_pos_x, kline_pos_y]
         refParam["kline_size"] = [kline_width, kline_height]
@@ -455,6 +462,19 @@ class STechChart(FloatLayout):
         self.klineChart.charting()
         self.priceMixedChart.changeDrawInfo(refParam)
         
+        extremeValue = self._getExtremeValue()
+
+        refParam = {}
+        refParam["ExtremeValue"] = extremeValue
+        self.priceMixedChart.changeDrawInfo(refParam)
+        self.priceMixedChart.charting()
+        self.klineChart.changeDrawInfo(refParam)
+        self.klineChart.charting()
+        
+        self.secMixedChart.changeDrawInfo(paramDict)
+        self.secMixedChart.charting()
+
+    def _getExtremeValue(self):
         extremeValue = []
         kline_extremeValue = self.klineChart.getExtremeValue()
         price_extremeValue = self.priceMixedChart.getExtremeValue()
@@ -463,21 +483,15 @@ class STechChart(FloatLayout):
         else:
             extremeValue.append(kline_extremeValue[0])
         if kline_extremeValue[1] > price_extremeValue[1]:
-            extremeValue.append(price_extremeValue[1])
+            if price_extremeValue[1] > 0:
+                extremeValue.append(price_extremeValue[1])
+            else:
+                extremeValue.append(kline_extremeValue[1])
         else:
             extremeValue.append(kline_extremeValue[1])
 
-        refParam = {}
-        refParam["ExtremeValue"] = extremeValue
-        self.priceMixedChart.changeDrawInfo(refParam)
-        self.priceMixedChart.charting()
-        if kline_extremeValue[0] != extremeValue[0] or kline_extremeValue[1] != extremeValue[1]:
-            self.klineChart.changeDrawInfo(refParam)
-            self.klineChart.charting()
-        
-        self.secMixedChart.changeDrawInfo(paramDict)
-        self.secMixedChart.charting()
-        
+        return extremeValue
+
     def _charting(self, *args):
         self._calcDispNum()
         calcParam = self._calcDrawInfo()
@@ -596,29 +610,19 @@ class STechChart(FloatLayout):
                 refParam = {}
                 refParam["ChartPos"] = calcParam.get("kline_pos")
                 refParam["ChartSize"] = calcParam.get("kline_size")
+                refParam["TickWide"] = self.tickWide
                 self._calcDispNum()
                 refParam["DispNum"] = self.dispNum   
                 refParam["CurrentPage"] = self.currentPage
                 self.priceMixedChart.changeDrawInfo(refParam)
                 
-                extremeValue = []
-                kline_extremeValue = self.klineChart.getExtremeValue()
-                price_extremeValue = self.priceMixedChart.getExtremeValue()
-                if kline_extremeValue[0] < price_extremeValue[0]:
-                    extremeValue.append(price_extremeValue[0])
-                else:
-                    extremeValue.append(kline_extremeValue[0])
-                if kline_extremeValue[1] > price_extremeValue[1]:
-                    extremeValue.append(price_extremeValue[1])
-                else:
-                    extremeValue.append(kline_extremeValue[1])
+                extremeValue = self._getExtremeValue()
                 
                 refParam["ExtremeValue"] = extremeValue
                 self.priceMixedChart.changeDrawInfo({"ExtremeValue":extremeValue})
                 self.priceMixedChart.charting()
-                if kline_extremeValue[0] != extremeValue[0] or kline_extremeValue[1] != extremeValue[1]:
-                    self.klineChart.changeDrawInfo(refParam)
-                    self.klineChart.charting()
+                self.klineChart.changeDrawInfo(refParam)
+                self.klineChart.charting()
                 aList = self.formulaMapping.get(str(self.techType_index))
                 self.secMixedChart.clearData()
                 self.secMixedChart.setLineSetup(aList[0])
@@ -628,7 +632,7 @@ class STechChart(FloatLayout):
                 refParam["CurrentPage"] = self.currentPage
                 refParam["DispNum"] = self.dispNum
                 refParam["DataType"] = self.klineDataType_index
-                refParam["ExtremeValue"] = None                
+                refParam["ExtremeValue"] = None
                 self.secMixedChart.changeDrawInfo(refParam)
                 self.doQuery_TechData(self.techType_index, aList[1])
                 
@@ -645,11 +649,9 @@ class STechChart(FloatLayout):
                 self.secMixedChart.charting()      
 
     def removeListener(self):
-
         abxtoolkit.remove_listener([self.my_callback_func])
 
     def doQuery_history(self):
-        
         abxtoolkit.add_listener([self.my_callback_func])
         qdict = {}
         qdict['StockFullID'] = self.stkId
@@ -675,7 +677,7 @@ class STechChart(FloatLayout):
         qdict['RecoverDate'] = 0
         qdict['StartDate'] = 0
         qdict['EndDate'] = 0
-        qdict['RecordCount'] = self.recordCount         
+        qdict['RecordCount'] = self.recordCount
  
         a_result = abxtoolkit.query_technicalindex_data(qdict)
         if a_result.get("ErrCode") != 0:

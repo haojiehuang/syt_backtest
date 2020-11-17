@@ -54,7 +54,6 @@ class SKLineGraph(SBaseTech):
             self.dispMax = self.dispNum
         else:
             self.dispMax = len(self.dataDict)
-        print("0000", self.dataType, self.extremeValue, self.yscale, self.lowestValue)
 
     def getExtremeValue(self):
         """

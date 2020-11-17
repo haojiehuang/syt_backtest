@@ -20,6 +20,7 @@ from kivy.utils import get_color_from_hex as colorHex
 
 import sconsts as CONSTS
 import sutil
+from sgw_popup import SGwPopup
 from selements import SLabel, SButton, STableScrollView, STableGridLayout, SPopup
 from soption_element import SOptionElement
 
@@ -52,67 +53,45 @@ class SOptionSelect(BoxLayout):
         
         self.contentLayout_id.add_widget(slview)
         
-        self.doQueryFormulaId()
-    
-    def doQueryFormulaId(self):
-        contentLayout = BoxLayout()
-        contentLayout.orientation = "vertical"
-        contentLayout.size_hint = (1, 1)
-        contentLabel = SLabel(text="  資料讀取中...", size_hint=(1, .8))
-        contentLayout.add_widget(contentLabel)
-        
-        sysConfDict = self.app.confDict.get(CONSTS.SYS_CONF_DICT)
-        
-        self.result = None
-        self.dp_popup = Popup(title=sysConfDict.get("MSG_TITLE"), content=contentLayout,
-                size_hint=(None, None), size=(160, 120), auto_dismiss=False)
-        self.dp_popup.title_font = CONSTS.FONT_NAME
-        self.dp_popup.bind(on_open=self.dp_open)
-        Clock.schedule_once(self.doQueryFormulaIdStart)
+        self._doQueryFormulaId()
 
-    def doQueryFormulaIdStart(self, instance):
-        self.dp_popup.open()
-        threading.Thread(target=self.toolkitQueryFormulaId).start()
-        
-    def toolkitQueryFormulaId(self):
+    def _doQueryFormulaId(self):
+        refParam = {}
+        refParam["CONSTS.S_APP"] = self.app
+        refParam["TitleMsg"] = self.sysConfDict.get("MSG_TITLE")
+        refParam["InfoMsg"] = "  資料讀取中..."
+        refParam["PopupSize"] = (160, 120)
+        gwParam = {}
         userConf = sutil.getDictFromFile(os.path.join(os.path.dirname(__file__), ".." + os.sep + "conf" + os.sep + "user.ini"))
         useridTxt = self.app.account
         if useridTxt.find("@") != -1:
             useridTxt = "1|" + useridTxt
         else:
             useridTxt = "2|" + useridTxt        
-        aDict = {}
-        aDict["Host"] = userConf.get("DOWNLOAD_URL").strip()
-        aDict["Port"] = int(userConf.get("DOWNLOAD_PORT").strip())
-        aDict["User"] = useridTxt
-        aDict["Password"] = self.app.pwd
-        aDict["ProductId"] = int(userConf.get("PRODUCT_ID").strip())
-        aDict["UserType"] = int(userConf.get("USER_TYPE").strip())
-        aDict["LoginType"] = int(userConf.get("TRADE_LOGIN_TYPE").strip())
-        aDict["CateID"] = 8202000
-        self.result = abxtoolkit.query_formulaid(aDict)
+        gwParam["Host"] = userConf.get("DOWNLOAD_URL").strip()
+        gwParam["Port"] = int(userConf.get("DOWNLOAD_PORT").strip())
+        gwParam["User"] = useridTxt
+        gwParam["Password"] = self.app.pwd
+        gwParam["ProductId"] = int(userConf.get("PRODUCT_ID").strip())
+        gwParam["UserType"] = int(userConf.get("USER_TYPE").strip())
+        gwParam["LoginType"] = int(userConf.get("TRADE_LOGIN_TYPE").strip())
+        gwParam["CateID"] = 8202000        
+        refParam["GwParam"] = gwParam
+        refParam["GwFunc"] = abxtoolkit.query_formulaid
+        refParam["ResultFunc"] = self._finishedQueryFormulaId 
+
+        sgwPopup = SGwPopup(refParam)
+        sgwPopup.processEvent()
         
-    def doQueryFormulaId_check(self, dt):
-        if self.result != None:
-            self.dp_popup.dismiss()
-            self.event.cancel()            
-            errCode = self.result.get("ErrCode")
-            if errCode != 0:
-                errDesc = self.result.get("ErrDesc")
-                self.app.showErrorView(False, errCode, errDesc)
-            else:
-                self.finishedQueryFormulaId(self.result.get("FormulaList"))
-
-    def dp_open(self, instance):
-        self.event = Clock.schedule_interval(self.doQueryFormulaId_check, .0005)
-
-    def finishedQueryFormulaId(self, formulaList):
+    def _finishedQueryFormulaId(self, gwResult):
         
         if self.optionList == None:
             self.optionList = []
         else:
             self.optionList.clear()
-            
+
+        formulaList = gwResult.get("FormulaList")
+
         aOption = None
         for adict in formulaList:
             aOption = SOptionElement({"OptionDict":adict})

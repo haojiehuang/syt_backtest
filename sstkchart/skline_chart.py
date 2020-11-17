@@ -52,8 +52,7 @@ class SKLineChart():
         """
         if self.klineGraph == None:
             return
-        
-        print("1111", self.klineGraph.extremeValue, self.klineGraph.dataType, self.klineGraph.chartSize)
+
         self.klineGraph.charting()
         if self.klineGraph.isDrawRect == True:
             self.klineGraph.drawRectGrid() #繪製一矩形框

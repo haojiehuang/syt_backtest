@@ -11,7 +11,6 @@
     volume_id: volume_id
     amt_id: amt_id
     upDown_id: upDown_id
-    closebtn_id: closebtn_id
     
     size_hint: (1, 1)
     padding: 2
@@ -116,17 +115,5 @@
 
     FloatLayout:
         id: body_layout
-        size_hint: (1, .82)
-        pos_hint: {'x':0, 'y':.06}
-    
-    SSysBoxLayout:
-        size_hint: (1, .06)
+        size_hint: (1, .88)
         pos_hint: {'x':0, 'y':0}
-        orientation: 'horizontal'
-   
-        SButton:
-            id: closebtn_id
-            text: '關閉'
-            size_hint: (1, 1)
-            halign: 'center'
-            valign: 'middle'

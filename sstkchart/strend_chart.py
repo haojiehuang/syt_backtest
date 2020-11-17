@@ -113,9 +113,9 @@ class STrendChart(FloatLayout):
         self.price_width = self.width - self.shift_left
         self.price_xscale = 1.0 * self.price_width / self.chartNum #價圖x縮放比例
         sc_x_start_pos = self.pos[0] #走勢圖原點之x軸座標值
-        sc_y_start_pos = self.pos[1] + .06 * self.height #走勢圖原點之y軸座標值
+        sc_y_start_pos = self.pos[1] #走勢圖原點之y軸座標值
         sc_width = self.width #走勢圖的寬度
-        sc_height = .82 * self.height #走勢圖之高度
+        sc_height = .88 * self.height #走勢圖之高度
         self.body_layout.canvas.clear()
         self.strendChart.charting([[sc_x_start_pos, sc_y_start_pos], [sc_width, sc_height]])
 
@@ -158,11 +158,9 @@ class STrendChart(FloatLayout):
             self.strendChart.addData(a_result.data)
 
     def removeListener(self):
-
         abxtoolkit.remove_listener([self.my_callback_func])
         
     def doRebuild_mintrade(self):
-        
         abxtoolkit.add_listener([self.my_callback_func])
         a_result = abxtoolkit.rebuild_mintrade(self.stkId)
         if a_result.get("ErrCode") != 0:

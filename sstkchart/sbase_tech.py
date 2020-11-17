@@ -332,112 +332,20 @@ class SBaseTech():
                         self._drawXLineAndInfo(dispIdx, aKey[:4], gridGroup, labelList)
                         addNum = 0
                     headKey = aKey[:4]
-        elif procType == 10: #1分線，每1小時顯示1筆，顯示時分，若剛好也換日期，則顯示日
-            headKey = None
-            headDay = None
+        elif procType == 10 or procType == 11 or procType == 12 or procType == 13 or procType == 14 or procType == 15 or procType == 16:
+            #1,5,10,20,30,60分線，第一次5筆顯示座標，之後每20筆顯示座標，顯示日期及時分
+            gapNum = 10
+            addNum = 0
             dispIdx = -1
             for aIdx in range(self.scopeIdx[0], self.scopeIdx[1] + 1):
                 dispIdx += 1
                 aKey = self.keyList[aIdx]
-                if headKey == None:
-                    headKey = aKey[:10]
-                    headDay = aKey[:8]
-                if headKey != aKey[:10]:
-                    if headDay != aKey[:8]:
-                        self._drawXLineAndInfo(dispIdx, sutil.formatDate(aKey[:8]), gridGroup, labelList)
-                        headDay = aKey[:8]
-                    else:
-                        self._drawXLineAndInfo(dispIdx, sutil.formatTime(aKey[8:12]), gridGroup, labelList)
-                    headKey = aKey[:10]
-        elif procType == 11: #5分線，顯示9:00及11:30，顯示時分，若剛好也換日期，則顯示日
-            headDay = None
-            dispIdx = -1
-            for aIdx in range(self.scopeIdx[0], self.scopeIdx[1] + 1):
-                dispIdx += 1
-                aKey = self.keyList[aIdx]
-                if headDay == None:
-                    headDay = aKey[:8]
-                if headDay != aKey[:8]:
-                    self._drawXLineAndInfo(dispIdx, sutil.formatDate(aKey[:8]), gridGroup, labelList)
-                    headDay = aKey[:8]
-                    continue
-                if aKey[8:12] == "0900" or aKey[8:12] == "1130":
-                    self._drawXLineAndInfo(dispIdx, sutil.formatTime(aKey[8:12]), gridGroup, labelList)
-        elif procType == 12: #10分線，每日顯示1筆，顯示日
-            headKey = None
-            dispIdx = -1
-            for aIdx in range(self.scopeIdx[0], self.scopeIdx[1] + 1):
-                dispIdx += 1
-                aKey = self.keyList[aIdx]
-                if headKey == None:
-                    headKey = aKey[:8]
-                if headKey != aKey[:8]:
-                    self._drawXLineAndInfo(dispIdx, sutil.formatDate(aKey[:8]), gridGroup, labelList)
-                    headKey = aKey[:8]
-        elif procType == 13: #15分線，每兩日顯示1筆，顯示日
-            headKey = None
-            addNum = None
-            dispIdx = -1
-            for aIdx in range(self.scopeIdx[0], self.scopeIdx[1] + 1):
-                dispIdx += 1
-                aKey = self.keyList[aIdx]
-                if headKey == None:
-                    headKey = aKey[:8]
+                addNum += 1
+                if addNum == gapNum:
+                    if gapNum == 10:
+                        gapNum = 25
+                    self._drawXLineAndInfo(dispIdx, aKey[4:6] + "/" + aKey[6:8] + " " + sutil.formatTime(aKey[8:12]), gridGroup, labelList)
                     addNum = 0
-                if headKey != aKey[:8]:
-                    addNum += 1
-                    if addNum == 2: #此判斷值代表間隔日數
-                        self._drawXLineAndInfo(dispIdx, sutil.formatDate(aKey[:8]), gridGroup, labelList)
-                        addNum = 0                    
-                    headKey = aKey[:8]
-        elif procType == 14: #20分線，每3日顯示1筆，顯示日
-            headKey = None
-            addNum = None
-            dispIdx = -1
-            for aIdx in range(self.scopeIdx[0], self.scopeIdx[1] + 1):
-                dispIdx += 1
-                aKey = self.keyList[aIdx]
-                if headKey == None:
-                    headKey = aKey[:8]
-                    addNum = 0
-                if headKey != aKey[:8]:
-                    addNum += 1
-                    if addNum == 3: #此判斷值代表間隔日數
-                        self._drawXLineAndInfo(dispIdx, sutil.formatDate(aKey[:8]), gridGroup, labelList)
-                        addNum = 0                    
-                    headKey = aKey[:8]
-        elif procType == 15: #30分線,每4日顯示1筆，顯示日
-            headKey = None
-            addNum = None
-            dispIdx = -1
-            for aIdx in range(self.scopeIdx[0], self.scopeIdx[1] + 1):
-                dispIdx += 1
-                aKey = self.keyList[aIdx]
-                if headKey == None:
-                    headKey = aKey[:8]
-                    addNum = 0
-                if headKey != aKey[:8]:
-                    addNum += 1
-                    if addNum == 4: #此判斷值代表間隔日數
-                        self._drawXLineAndInfo(dispIdx, sutil.formatDate(aKey[:8]), gridGroup, labelList)
-                        addNum = 0                    
-                    headKey = aKey[:8]
-        elif procType == 16: #60線，每5日顯示1筆，顯示日
-            headKey = None
-            addNum = None
-            dispIdx = -1
-            for aIdx in range(self.scopeIdx[0], self.scopeIdx[1] + 1):
-                dispIdx += 1
-                aKey = self.keyList[aIdx]
-                if headKey == None:
-                    headKey = aKey[:8]
-                    addNum = 0
-                if headKey != aKey[:8]:
-                    addNum += 1
-                    if addNum == 5: #此判斷值代表間隔日數
-                        self._drawXLineAndInfo(dispIdx, sutil.formatDate(aKey[:8]), gridGroup, labelList)
-                        addNum = 0                    
-                    headKey = aKey[:8]
         else: #日線顯示每月的第一筆，顯示到月
             headKey = None
             dispIdx = -1
@@ -491,8 +399,8 @@ class SBaseTech():
         alabel.text = headKey
         alabel.color = self.CORD_INFO_COLOR
         self.layout.add_widget(alabel)
-        labelList.append(alabel)
-    
+        labelList.append(alabel)       
+
     def drawYCordInfo(self, removeLabelList):
         """
         畫出Y軸的橫線及顯示座標訊息

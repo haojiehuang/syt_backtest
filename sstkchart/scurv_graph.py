@@ -26,6 +26,7 @@ class SCurvGraph(SBaseTech):
         self.CURV_COLOR = paramDict.get("CURV_COLOR") #線條顏色
         self.CROSS_LINE_COLOR = paramDict.get("CROSS_LINE_COLOR") #十字線顏色
         self.techType = paramDict.get("TechType") #技術分析類型
+        self.isPriceMA = paramDict.get("IsPriceMA") #是否為價格MA
 
         self.info_time = SLabel(text="") #時間
         self.info_time.color = self.DATA_INFO_COLOR 
@@ -105,7 +106,12 @@ class SCurvGraph(SBaseTech):
                 else:
                     tmpKey = self.keyList[aIdx - 1]
                     preValue = self.dataDict.get(tmpKey)
-            self._drawLine(preValue, aValue, dispIdx, False)
+            if dispIdx != 0:
+                if self.isPriceMA == True:
+                    if preValue != 0:
+                        self._drawLine(preValue, aValue, dispIdx, False)
+                else:
+                    self._drawLine(preValue, aValue, dispIdx, False)
             preValue = aValue
             self.lastKey = aKey
 
